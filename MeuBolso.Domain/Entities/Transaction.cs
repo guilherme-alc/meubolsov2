@@ -9,7 +9,7 @@ namespace MeuBolso.Domain.Entities
         public string Description { get; set; } = string.Empty;
         public ETransactionType Type { get; set; }
         public decimal Amount { get; set; }
-        public DateTime PaymentOrReceivedAt { get; set; }
+        public DateTime? PaymentOrReceivedAt { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public long CategoryId { get; set; }
         public Category Category { get; set; } = null!;
