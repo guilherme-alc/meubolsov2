@@ -1,9 +1,4 @@
-using MeuBolso.Application.Categories.Abstractions;
 using MeuBolso.Application.Common.Abstractions;
-using MeuBolso.Application.Transactions.Abstractions;
-using MeuBolso.Infrastructure.Categories;
-using MeuBolso.Infrastructure.Transactions;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace MeuBolso.Infrastructure.Persistence;
 

@@ -1,5 +1,9 @@
 using FluentValidation;
+using MeuBolso.API.Middlewares;
+using MeuBolso.Application.Categories.Abstractions;
 using MeuBolso.Application.Categories.Create;
+using MeuBolso.Application.Common.Abstractions;
+using MeuBolso.Infrastructure.Categories;
 using MeuBolso.Infrastructure.Identity;
 using MeuBolso.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
@@ -21,10 +25,15 @@ namespace MeuBolso.API
             });
             
             builder.Services.AddValidatorsFromAssemblyContaining<CreateCategoryValidator>();
+            builder.Services.AddScoped<CreateCategoryUseCase>();
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             
             builder.Services.AddDbContext<MeuBolsoDbContext>(opts =>
                 opts.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            builder.Services.AddAuthentication();
+            
             builder.Services.AddIdentityCore<ApplicationUser>(options =>
             {
                 options.Password.RequireDigit = true;
@@ -62,6 +71,8 @@ namespace MeuBolso.API
 
             app.UseHttpsRedirection();
 
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
+            
             // Configuracao de cabecalhos de seguranca HTTP
             var policy = new HeaderPolicyCollection()
                 .AddFrameOptionsDeny()
@@ -76,7 +87,8 @@ namespace MeuBolso.API
                     policy.AddGeolocation().None();
                 });
             app.UseSecurityHeaders(policy);
-
+            
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.Run();
