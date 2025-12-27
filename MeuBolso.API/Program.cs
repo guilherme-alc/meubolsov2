@@ -1,3 +1,5 @@
+using FluentValidation;
+using MeuBolso.Application.Categories.Create;
 using MeuBolso.Infrastructure.Identity;
 using MeuBolso.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
@@ -17,7 +19,9 @@ namespace MeuBolso.API
             {
                 config.ValidateScopes = true;
             });
-
+            
+            builder.Services.AddValidatorsFromAssemblyContaining<CreateCategoryValidator>();
+            
             builder.Services.AddDbContext<MeuBolsoDbContext>(opts =>
                 opts.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -64,7 +68,7 @@ namespace MeuBolso.API
                 .AddXssProtectionBlock()
                 .AddContentTypeOptionsNoSniff()
                 .AddReferrerPolicyStrictOriginWhenCrossOrigin()
-                .AddCrossOriginOpenerPolicy(builder => builder.SameOrigin())
+                .AddCrossOriginOpenerPolicy(policyBuilder => policyBuilder.SameOrigin())
                 .AddPermissionsPolicy(policy =>
                 {
                     policy.AddCamera().None();
