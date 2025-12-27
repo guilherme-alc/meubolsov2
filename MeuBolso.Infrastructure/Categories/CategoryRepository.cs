@@ -60,4 +60,9 @@ public class CategoryRepository : ICategoryRepository
 
         return new PagedResult<Category>(data, total, pageNumber, pageSize);;
     }
+
+    public async Task<bool> ExistsAsync(string userId, string name)
+    {
+        return await _dbContext.Categories.AnyAsync(c => c.Name == name && c.UserId == userId);
+    }
 }
