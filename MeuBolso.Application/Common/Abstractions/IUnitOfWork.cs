@@ -5,10 +5,5 @@ namespace MeuBolso.Application.Common.Abstractions;
 
 public interface IUnitOfWork
 {
-    ITransactionRepository Transactions { get; }
-    ICategoryRepository Categories { get; }
-    
-    Task BeginTransactionAsync();
-    Task CommitTransactionAsync();
-    Task RollbackTransactionAsync();
+    Task SaveChangesAsync(CancellationToken ct = default);
 }
