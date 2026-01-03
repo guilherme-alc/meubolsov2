@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 
 namespace MeuBolso.API
 {
@@ -27,6 +28,35 @@ namespace MeuBolso.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1",
+                    new OpenApiInfo
+                    {
+                        Title = "MeuBolso API",
+                        Version = "v1",
+                        Description = "MeuBolso API Documentation",
+                        Contact = new OpenApiContact
+                        {
+                            Name = "Guilherme Campos",
+                            Email = "guilhermealc01@gmail.com"
+                        }
+                    }
+                ); 
+                options.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Description = "JWT Authorization header using the Bearer scheme."
+                });
+                options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+                {
+                    [new OpenApiSecuritySchemeReference("bearer", document)] = []
+                });
+            });
+            
             // Habilita validacao de escopo para servicos
             builder.Host.UseDefaultServiceProvider(config =>
             {
@@ -96,11 +126,25 @@ namespace MeuBolso.API
                     .RequireAuthenticatedUser()
                     .Build();
             });
-            
-            builder.Services.AddEndpointsApiExplorer();
 
             var app = builder.Build();
 
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger(c =>
+                {
+                    c.RouteTemplate = "docs/{documentName}/swagger.json";
+                });
+
+                app.UseSwaggerUI(c =>
+                {
+                    c.RoutePrefix = "docs";
+                    c.SwaggerEndpoint("/docs/v1/swagger.json", "MeuBolso API v1");
+                    c.EnablePersistAuthorization();
+                });
+            }
+
+            
             app.UseHttpsRedirection();
 
             app.UseMiddleware<ExceptionHandlingMiddleware>();

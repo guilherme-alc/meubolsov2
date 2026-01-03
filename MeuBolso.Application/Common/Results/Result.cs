@@ -31,6 +31,6 @@ public sealed class Result<T> : Result
     public static Result<T> Success(T value)
         => new(true, value, null);
 
-    public static Result<T> Failure(string error)
+    public new static Result<T> Failure(string error)
         => new(false, default, error);
 }
