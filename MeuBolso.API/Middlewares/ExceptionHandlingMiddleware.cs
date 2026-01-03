@@ -27,10 +27,10 @@ public class ExceptionHandlingMiddleware
             context.Response.StatusCode = StatusCodes.Status409Conflict;
             await WriteErrorAsync(context, ex.Message);
         }
-        catch (UnauthorizedAccessException)
+        catch (UnauthorizedAccessException ex)
         {
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            await WriteErrorAsync(context, "Não autorizado");
+            await WriteErrorAsync(context, ex.Message);
         }
         catch (Exception ex)
         {

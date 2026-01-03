@@ -1,6 +1,5 @@
 using MeuBolso.Application.Categories.Abstractions;
-using MeuBolso.Application.Categories.Exceptions;
-using MeuBolso.Application.Common.Abstractions;
+using MeuBolso.Application.Common.Results;
 using MeuBolso.Domain.Entities;
 
 namespace MeuBolso.Application.Categories.Create;
@@ -8,18 +7,16 @@ namespace MeuBolso.Application.Categories.Create;
 public class CreateCategoryUseCase
 {
     private readonly ICategoryRepository _categoryRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public CreateCategoryUseCase(ICategoryRepository categoryRepository, IUnitOfWork unitOfWork)
+    public CreateCategoryUseCase(ICategoryRepository categoryRepository)
     {
         _categoryRepository = categoryRepository;
-        _unitOfWork = unitOfWork;
     }
 
-    public async Task<CreateCategoryResponse> ExecuteAsync(CreateCategoryRequest request)
+    public async Task<Result<CreateCategoryResponse>> ExecuteAsync(CreateCategoryRequest request)
     {
         if (await _categoryRepository.ExistsAsync(request.UserId, request.Name))
-            throw new CategoryAlreadyExistsException(request.Name);
+            return Result<CreateCategoryResponse>.Failure($"A Categoria {request.Name} já existe");;
 
         var category = new Category
         {
@@ -30,8 +27,9 @@ public class CreateCategoryUseCase
         };
     
         await _categoryRepository.AddAsync(category);
-        await _unitOfWork.SaveChangesAsync();
         
-        return new CreateCategoryResponse(category.Id, category.Name);
+        return Result<CreateCategoryResponse>.Success(
+            new CreateCategoryResponse(category.Id, category.Name)
+        );
     }
 }
