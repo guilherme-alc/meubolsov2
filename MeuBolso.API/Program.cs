@@ -58,10 +58,13 @@ namespace MeuBolso.API
             });
             
             // Habilita validacao de escopo para servicos
-            builder.Host.UseDefaultServiceProvider(config =>
+            if (builder.Environment.IsDevelopment())
             {
-                config.ValidateScopes = true;
-            });
+                builder.Host.UseDefaultServiceProvider(options =>
+                {
+                    options.ValidateScopes = true;
+                });
+            }
             
             builder.Services.AddDbContext<MeuBolsoDbContext>(opts =>
                 opts.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -113,8 +116,7 @@ namespace MeuBolso.API
             })
             .AddRoles<IdentityRole>() // se usar roles
             .AddEntityFrameworkStores<MeuBolsoDbContext>()
-            .AddDefaultTokenProviders()
-            .AddSignInManager<SignInManager<ApplicationUser>>();
+            .AddDefaultTokenProviders();
             
             // Remove o cabecalho "Server" das respostas HTTP
             builder.WebHost.UseKestrel(options => options.AddServerHeader = false);
@@ -143,7 +145,6 @@ namespace MeuBolso.API
                     c.EnablePersistAuthorization();
                 });
             }
-
             
             app.UseHttpsRedirection();
 

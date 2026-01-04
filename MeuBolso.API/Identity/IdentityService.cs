@@ -6,14 +6,11 @@ namespace MeuBolso.API.Identity;
 internal sealed class IdentityService : IIdentityService
 {
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly SignInManager<ApplicationUser> _signInManager;
 
     public IdentityService(
-        UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager)
+        UserManager<ApplicationUser> userManager)
     {
         _userManager = userManager;
-        _signInManager = signInManager;
     }
     
     public async Task<bool> UserExistsAsync(string email)
@@ -49,9 +46,17 @@ internal sealed class IdentityService : IIdentityService
         if (!user.IsActive) 
             return null;
         
-        var result = await _signInManager
-            .CheckPasswordSignInAsync(user, password, lockoutOnFailure: false);
+        var ok = await _userManager
+            .CheckPasswordAsync(user, password);
+        
+        if(!ok)
+            return null;
 
-        return result.Succeeded ? user.Id : null;
+        user.LastLoginAt = DateTime.UtcNow;
+        var updateLastLoginResult = await _userManager.UpdateAsync(user);
+        if (!updateLastLoginResult.Succeeded)
+            throw new Exception(string.Join(", ", updateLastLoginResult.Errors.Select(e => e.Description)));
+        
+        return user.Id;
     }
 }
