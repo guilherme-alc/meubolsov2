@@ -1,5 +1,6 @@
-using MeuBolso.Application.Common.Exceptions;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace MeuBolso.API.Middlewares;
 
@@ -22,36 +23,72 @@ public class ExceptionHandlingMiddleware
         {
             await _next(context);
         }
-        catch (DomainException ex)
+        catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested)
         {
-            context.Response.StatusCode = StatusCodes.Status409Conflict;
-            await WriteErrorAsync(context, ex.Message);
+            // Cliente cancelou
+            if (!context.Response.HasStarted)
+                context.Response.StatusCode = 499; // Client Closed Request
         }
-        catch (UnauthorizedAccessException ex)
+        catch (DbUpdateConcurrencyException)
         {
-            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            await WriteErrorAsync(context, ex.Message);
+            await WriteErrorAsync(context, 
+                StatusCodes.Status409Conflict, 
+                "Conflito de concorrência. Tente novamente.");
+        }
+        catch (DbUpdateException ex) when (TryMapDbUpdate(ex, out var status, out var message))
+        {
+            await WriteErrorAsync(context, status, message);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erro inesperado");
-
-            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            await WriteErrorAsync(context, "Erro interno no servidor");
+            
+            await WriteErrorAsync(context,
+                StatusCodes.Status500InternalServerError,
+                "Erro interno no servidor");
         }
     }
 
     private static async Task WriteErrorAsync(
         HttpContext context,
+        int statusCode,
         string message)
     {
+        if (context.Response.HasStarted)
+            return;
+        
+        context.Response.Clear();
+        context.Response.StatusCode = statusCode;
         context.Response.ContentType = "application/json";
-
-        var result = JsonSerializer.Serialize(new
+        
+        var payload = JsonSerializer.Serialize(new { error = message });
+        await context.Response.WriteAsync(payload);
+    }
+    
+    private static bool TryMapDbUpdate(DbUpdateException ex, out int status, out string message)
+    {
+        // Postgres unique violation.
+        if (ex.InnerException is PostgresException pg)
         {
-            error = message
-        });
+            // 23505 = unique_violation
+            if (pg.SqlState == PostgresErrorCodes.UniqueViolation)
+            {
+                status = StatusCodes.Status409Conflict;
+                message = "Já existe um registro com esses dados.";
+                return true;
+            }
 
-        await context.Response.WriteAsync(result);
+            // 23503 = foreign_key_violation
+            if (pg.SqlState == PostgresErrorCodes.ForeignKeyViolation)
+            {
+                status = StatusCodes.Status409Conflict;
+                message = "Não foi possível concluir por vínculo com outro registro.";
+                return true;
+            }
+        }
+
+        status = 0;
+        message = "";
+        return false;
     }
 }
