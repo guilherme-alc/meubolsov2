@@ -1,4 +1,5 @@
 using System.Text.Json;
+using MeuBolso.Application.Auth.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
@@ -8,13 +9,17 @@ public class ExceptionHandlingMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<ExceptionHandlingMiddleware> _logger;
+    private readonly IWebHostEnvironment _env;
+    private bool _isDevelopment => _env.IsDevelopment();
 
     public ExceptionHandlingMiddleware(
         RequestDelegate next,
-        ILogger<ExceptionHandlingMiddleware> logger)
+        ILogger<ExceptionHandlingMiddleware> logger,
+        IWebHostEnvironment env)
     {
         _next = next;
         _logger = logger;
+        _env = env;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -29,30 +34,47 @@ public class ExceptionHandlingMiddleware
             if (!context.Response.HasStarted)
                 context.Response.StatusCode = 499; // Client Closed Request
         }
-        catch (DbUpdateConcurrencyException)
+        catch (DbUpdateConcurrencyException ex)
         {
+            var message = "Conflito de concorrência. Tente novamente.";
+            var errorResponse = new
+            {
+                Message = _isDevelopment ? $"{message}: {ex.Message}" : message,
+                Details = _isDevelopment ? ex.StackTrace : ""
+            };
             await WriteErrorAsync(context, 
                 StatusCodes.Status409Conflict, 
-                "Conflito de concorrência. Tente novamente.");
+                errorResponse);
         }
         catch (DbUpdateException ex) when (TryMapDbUpdate(ex, out var status, out var message))
         {
-            await WriteErrorAsync(context, status, message);
+            _logger.LogError(ex, "Erro ao persistir dados");
+            var errorResponse = new
+            {
+                Message = message,
+                Details = _isDevelopment ? ex.Message : ""
+            };
+            await WriteErrorAsync(context, status, errorResponse);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erro inesperado");
+            var errorResponse = new
+            {
+                Message = _isDevelopment ? ex.Message : "Erro interno no servidor",
+                Details = _isDevelopment ? ex.StackTrace : ""
+            };
             
             await WriteErrorAsync(context,
                 StatusCodes.Status500InternalServerError,
-                "Erro interno no servidor");
+                errorResponse);
         }
     }
 
     private static async Task WriteErrorAsync(
         HttpContext context,
         int statusCode,
-        string message)
+        object errorResponse)
     {
         if (context.Response.HasStarted)
             return;
@@ -61,7 +83,7 @@ public class ExceptionHandlingMiddleware
         context.Response.StatusCode = statusCode;
         context.Response.ContentType = "application/json";
         
-        var payload = JsonSerializer.Serialize(new { error = message });
+        var payload = JsonSerializer.Serialize(errorResponse);
         await context.Response.WriteAsync(payload);
     }
     
