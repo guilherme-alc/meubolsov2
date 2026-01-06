@@ -8,6 +8,8 @@ using MeuBolso.API.Middlewares;
 using MeuBolso.API.Persistence;
 using MeuBolso.Application.Auth.Abstractions;
 using MeuBolso.Application.Auth.Login;
+using MeuBolso.Application.Auth.Logout;
+using MeuBolso.Application.Auth.Refresh;
 using MeuBolso.Application.Auth.Register;
 using MeuBolso.Application.Categories.Abstractions;
 using MeuBolso.Application.Categories.Create;
@@ -71,9 +73,13 @@ namespace MeuBolso.API
             
             builder.Services.AddScoped<IJwtProvider, JwtProvider>();
             builder.Services.AddScoped<IIdentityService, IdentityService>();
+            builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+            builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
             builder.Services.AddScoped<LoginUseCase>();
             builder.Services.AddScoped<RegisterUseCase>();
+            builder.Services.AddScoped<RefreshUseCase>();
+            builder.Services.AddScoped<LogoutUseCase>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<CreateCategoryUseCase>();
 
