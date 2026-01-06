@@ -1,3 +1,3 @@
-namespace MeuBolso.Application.Auth.AuthDTO;
+namespace MeuBolso.Application.Auth.Register;
 
 public record RegisterRequest(string Email, string Password, string? FullName);

@@ -1,5 +1,4 @@
 using FluentValidation;
-using MeuBolso.Application.Auth.AuthDTO;
 using MeuBolso.Application.Auth.Login;
 
 namespace MeuBolso.API.Endpoints.Auth;
