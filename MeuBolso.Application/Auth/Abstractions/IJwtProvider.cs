@@ -1,8 +1,8 @@
 using System.Security.Claims;
 
 namespace MeuBolso.Application.Auth.Abstractions;
-
+public sealed record AccessTokenResult(string Token, DateTime ExpiresAt);
 public interface IJwtProvider
 {
-    string GenerateToken(string userId, string email, IEnumerable<Claim> claims);
+    AccessTokenResult GenerateToken(string userId, string email, IEnumerable<Claim> claims);
 }

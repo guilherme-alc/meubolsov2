@@ -16,7 +16,7 @@ public class JwtProvider : IJwtProvider
         _options = options.Value;
     }
     
-    public string GenerateToken(string userId, string email, IEnumerable<Claim> claims)
+    public AccessTokenResult GenerateToken(string userId, string email, IEnumerable<Claim> claims)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Secret));
         
@@ -28,14 +28,19 @@ public class JwtProvider : IJwtProvider
         };
         jwtClaims.AddRange(claims);
 
+        var expiresAt = DateTime.UtcNow.AddMinutes(_options.AccessTokenMinutes);
+        
         var token = new JwtSecurityToken(
             issuer: _options.Issuer,
             audience: _options.Audience,
             claims: jwtClaims,
-            expires: DateTime.UtcNow.AddMinutes(_options.AccessTokenMinutes),
+            expires: expiresAt,
             signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
         );
         
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return new AccessTokenResult(
+            new JwtSecurityTokenHandler().WriteToken(token),
+            expiresAt
+        );
     }
 }
