@@ -13,7 +13,7 @@ public class LoginEndpoint
             LoginUseCase useCase,
             CancellationToken ct) =>
         {
-            var validation = await validator.ValidateAsync(request);
+            var validation = await validator.ValidateAsync(request, ct);
             if (!validation.IsValid)
                 return Results.BadRequest(validation.Errors);
             
