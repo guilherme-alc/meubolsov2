@@ -1,41 +1,35 @@
-using MeuBolso.API.Persistence;
 using MeuBolso.Application.Categories.Abstractions;
 using MeuBolso.Application.Common.Pagination;
 using MeuBolso.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace MeuBolso.Infrastructure.Categories;
+namespace MeuBolso.API.Persistence.Repositories;
 
-public class CategoryRepository : ICategoryRepository
+public class CategoryRepository(MeuBolsoDbContext dbContext) : ICategoryRepository
 {
-    private readonly MeuBolsoDbContext _dbContext;
-    public CategoryRepository(MeuBolsoDbContext dbContext)
+    public async Task AddAsync(Category category, CancellationToken ct = default)
     {
-        _dbContext = dbContext;
-    }
-    public async Task AddAsync(Category category)
-    {
-        await _dbContext.Categories.AddAsync(category);
+        await dbContext.Categories.AddAsync(category, ct);
     }
 
     public void RemoveAsync(Category category)
     {
-        _dbContext.Categories.Remove(category);
+        dbContext.Categories.Remove(category);
     }
 
-    public async Task<Category?> GetByIdAsync(long id, string userId)
+    public async Task<Category?> GetByIdAsync(long id, string userId, CancellationToken ct = default)
     {
-        var category = await _dbContext.Categories
+        var category = await dbContext.Categories
             .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.Id == id && c.UserId == userId);
+            .FirstOrDefaultAsync(c => c.Id == id && c.UserId == userId, ct);
 
         return category;
     }
     
-    public async Task<Category?> GetByIdForUpdateAsync(long id, string userId)
+    public async Task<Category?> GetByIdForUpdateAsync(long id, string userId, CancellationToken ct = default)
     {
-        var category = await _dbContext.Categories
-            .FirstOrDefaultAsync(c => c.Id == id && c.UserId == userId);
+        var category = await dbContext.Categories
+            .FirstOrDefaultAsync(c => c.Id == id && c.UserId == userId, ct);
 
         return category;
     }
@@ -43,26 +37,31 @@ public class CategoryRepository : ICategoryRepository
     public async Task<PagedResult<Category>> ListAsync(
         int pageNumber, 
         int pageSize,
-        string userId)
+        string userId,
+        CancellationToken ct = default)
     {
-        var query = _dbContext
+        var query = dbContext
             .Categories
             .AsNoTracking()
             .Where(c => c.UserId == userId);
 
-        var total = await query.CountAsync();
+        var total = await query.CountAsync(ct);
         
         var data = await query
             .OrderBy(c => c.Name) // ou CreatedAt, ou Id
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
-            .ToListAsync();
+            .ToListAsync(ct);
 
-        return new PagedResult<Category>(data, total, pageNumber, pageSize);;
+        return new PagedResult<Category>(data, total, pageNumber, pageSize);
     }
 
-    public async Task<bool> ExistsAsync(string userId, string name)
+    public async Task<bool> ExistsAsync(string userId, string name, CancellationToken ct = default)
     {
-        return await _dbContext.Categories.AnyAsync(c => c.Name == name && c.UserId == userId);
+        var nameNormalized = name.Trim().ToUpperInvariant();
+        
+        return await dbContext.Categories.AnyAsync(
+            c => c.UserId == userId && c.NormalizedName == nameNormalized,
+            ct);
     }
 }

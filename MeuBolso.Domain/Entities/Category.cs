@@ -2,10 +2,33 @@
 {
     public class Category
     {
-        public long Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string? Description { get; set; }
-        public string? Color { get; set; }
-        public string UserId { get; set; } = string.Empty;
+        private Category() { }
+        public Category(string userId, string name, string? description, string? color)
+        {
+            UserId = userId;
+            SetName(name);
+            SetDescription(description);
+            SetColor(color);
+        }
+
+        public long Id { get; private set; }
+        public string Name { get; private set; }
+        public string NormalizedName { get; private set; }
+        public string? Description { get; private set; }
+        public string? Color { get; private set; }
+        public string UserId { get; private set; } = string.Empty;
+        
+        public void SetName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Nome da categoria é obrigatório.", nameof(name));
+
+            Name = name.Trim();
+            NormalizedName = Name.ToUpperInvariant();
+        }
+
+        public void SetDescription(string? description) => Description = description?.Trim();
+        public void SetColor(string? color) => Color = color?.Trim();
+        
     }
 }

@@ -3,6 +3,7 @@ using System;
 using MeuBolso.API.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MeuBolso.API.Persistence.Migrations
 {
     [DbContext(typeof(MeuBolsoDbContext))]
-    partial class MeuBolsoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260108021808_AddCategoryNormalizedNameAndUniqueIndex")]
+    partial class AddCategoryNormalizedNameAndUniqueIndex
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

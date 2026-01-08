@@ -7,7 +7,7 @@ public class CreateCategoryValidator : AbstractValidator<CreateCategoryRequest>
     public CreateCategoryValidator()
     {
         RuleFor(x => x.Name)
-            .NotEmpty()
+            .Must(n => !string.IsNullOrWhiteSpace(n))
             .WithMessage("O nome da categoria precisa ser fornecido")
             .MaximumLength(100)
             .WithMessage("O nome não pode ultrapassar 100 caracteres");        

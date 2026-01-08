@@ -14,9 +14,10 @@ public static class CreateCategoryEndpoint
             CreateCategoryRequest request,
             CreateCategoryUseCase useCase,
             IValidator<CreateCategoryRequest> validator,
-            ClaimsPrincipal user) =>
+            ClaimsPrincipal user,
+            CancellationToken ct) =>
         {
-            var validation = await validator.ValidateAsync(request);
+            var validation = await validator.ValidateAsync(request, ct);
             if (!validation.IsValid)
                 return Results.BadRequest(validation.Errors);
             
@@ -24,7 +25,7 @@ public static class CreateCategoryEndpoint
 
             request.UserId = userId;
 
-            var result = await useCase.ExecuteAsync(request);
+            var result = await useCase.ExecuteAsync(request, ct);
             
             if (!result.IsSuccess)
                 return Results.Conflict(new { error = result.Error });

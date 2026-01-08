@@ -20,6 +20,10 @@ namespace MeuBolso.API.Persistence.Configurations
                 .HasColumnName("name")
                 .IsRequired()
                 .HasMaxLength(100);
+            
+            builder.Property(x => x.NormalizedName)
+                .IsRequired()
+                .HasMaxLength(100);
 
             builder.Property(c => c.Description)
                 .HasColumnName("description")
@@ -41,9 +45,9 @@ namespace MeuBolso.API.Persistence.Configurations
                .HasConstraintName("fk_categories_user")
                .OnDelete(DeleteBehavior.Cascade);
             
-            builder.HasIndex(c => new { c.UserId, c.Name })
+            builder.HasIndex(c => new { c.UserId, c.NormalizedName })
                 .IsUnique()
-                .HasDatabaseName("ux_categories_user_name");
+                .HasDatabaseName("ux_categories_user_normalized_name");
         }
     }
 }
