@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi;
 using Saldoa.API.Auth;
 using Saldoa.API.Identity;
 using Saldoa.API.Infrastructure.Persistence;
 using Saldoa.API.Infrastructure.Persistence.Repositories;
+using Saldoa.API.OpenApi;
 using Saldoa.Application.Auth.Abstractions;
 using Saldoa.Application.Auth.Login;
 using Saldoa.Application.Auth.Logout;
@@ -46,26 +46,20 @@ public static class ServiceCollectionExtensions
 {
     public static WebApplicationBuilder AddOpenApi(this WebApplicationBuilder builder)
     {
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen(options =>
+        builder.Services.AddOpenApi(options =>
         {
-            options.SwaggerDoc("v1", new OpenApiInfo
+            options.AddDocumentTransformer((document, context, ct) =>
             {
-                Title = "Saldoa API", 
-                Version = "v1", 
-                Description = "Saldoa API Documentation", 
-                Contact = new OpenApiContact { Name = "Guilherme Campos", Email = "guilhermealc01@gmail.com" }
-            }); 
-            
-            options.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
-            {
-                Type = SecuritySchemeType.Http, 
-                Scheme = "bearer", 
-                BearerFormat = "JWT", 
-                Description = "JWT Authorization header using the Bearer scheme."
-            }); options.AddSecurityRequirement(document => new OpenApiSecurityRequirement { [new OpenApiSecuritySchemeReference("bearer", document)] = [] });
+                document.Info.Title = "Saldoa API";
+                document.Info.Version = "v1";
+                document.Info.Description = "Saldoa API Documentation";
+
+                return Task.CompletedTask;
+            });
+            options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+            options.AddOperationTransformer<AuthOperationTransformer>();
         });
-        
+
         return builder;
     }
     

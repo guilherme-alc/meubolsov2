@@ -18,7 +18,7 @@ namespace Saldoa.Application.Transactions.Common
             string userId,
             long categoryId,
             List<InstallmentDraft> installments,
-            IReadOnlyCollection<long>? excludeTransactionIds,
+            IReadOnlyCollection<long> excludeTransactionIds,
             CancellationToken ct)
         {
             var result = new List<BudgetAlert>();

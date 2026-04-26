@@ -21,7 +21,7 @@ public static class RegisterEndpoint
             
             return !result.IsSuccess ? Results.BadRequest(result.Error) : Results.Created("/auth/register", result.Value);
         })
-        .WithSummary("Autentica o usuário")
+        .WithSummary("Cadastra usuário")
         .WithDescription(
             "Realiza a autenticação utilizando e-mail e senha. " +
             "Em caso de sucesso, retorna um Access Token (JWT) e um Refresh Token com suas respectivas datas de expiração. " +

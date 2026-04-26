@@ -1,4 +1,5 @@
 using Saldoa.API.Middlewares;
+using Scalar.AspNetCore;
 
 namespace Saldoa.API.Extensions;
 
@@ -31,20 +32,21 @@ public static class WebApplicationExtensions
             });
         app.UseSecurityHeaders(policy);
         
-        // Swagger em dev
+        // Scalar em dev
         if (app.Environment.IsDevelopment())
         {
-            app.UseSwagger(c =>
+            app.MapOpenApi().AllowAnonymous();
+            app.MapScalarApiReference("/docs", options =>
             {
-                c.RouteTemplate = "docs/{documentName}/swagger.json";
-            });
-
-            app.UseSwaggerUI(c =>
-            {
-                c.RoutePrefix = "docs";
-                c.SwaggerEndpoint("/docs/v1/swagger.json", "Saldoa API v1");
-                c.EnablePersistAuthorization();
-            });
+                options.Title = "Saldoa API";
+                options.Theme = ScalarTheme.Moon;
+                options.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+                options.AddPreferredSecuritySchemes("Bearer")
+                    .AddHttpAuthentication("Bearer", auth =>
+                    {
+                        auth.Token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+                    }).EnablePersistentAuthentication();
+            }).AllowAnonymous();
         }
 
         // Segurança
