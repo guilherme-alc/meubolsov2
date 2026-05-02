@@ -1,4 +1,5 @@
 using Saldoa.Application.Categories.Abstractions;
+using Saldoa.Application.Categories.Common;
 using Saldoa.Application.Common.Abstractions;
 using Saldoa.Application.Common.Results;
 
@@ -20,14 +21,20 @@ public class UpdateCategoryUseCase
         var category = await _categoryRepository.GetByIdForUpdateAsync(id, userId, ct);
 
         if (category == null)
-            return Result.Failure("Categoria não encontrada");
+        {
+            var error = CategoryErrors.NotFound;
+            return Result.Failure(error);
+        }
 
         if (request.Name is not null)
         {
             var newNormalized = request.Name.Trim().ToUpperInvariant();
             if (newNormalized != category.NormalizedName 
                 && await _categoryRepository.ExistsAsync(userId, request.Name, ct))
-                return Result.Failure($"Uma Categoria com o nome {request.Name} já existe");
+            {
+                var error = CategoryErrors.AlreadyExists(request.Name);
+                return Result.Failure(error);
+            }
             
             category.SetName(request.Name);
         }

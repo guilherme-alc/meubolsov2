@@ -1,6 +1,7 @@
-using System.Security.Claims;
+using Saldoa.API.Common;
 using Saldoa.API.Extensions;
 using Saldoa.Application.Categories.GetById;
+using System.Security.Claims;
 
 namespace Saldoa.API.Endpoints.Categories;
 
@@ -19,8 +20,17 @@ public static class GetCategoryByIdEndpoint
             
             var result = await useCase.ExecuteAsync(id, userId, ct);
             
-            if(!result.IsSuccess)
-                return Results.NotFound(new { error = result.Error });
+            if (!result.IsSuccess)
+            {
+                var error = result.Error!;
+                int statusCode = MapStatusCode.GetCode(error.Type);
+
+                return TypedResults.Problem(
+                    detail: error.Message,
+                    statusCode: statusCode,
+                    title: error.Code
+                );
+            }
             
             return Results.Ok(result.Value);
         })

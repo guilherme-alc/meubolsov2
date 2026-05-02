@@ -18,7 +18,10 @@ public class GetCategoryByIdUseCase
         var category = await _categoryRepository.GetByIdAsync(id, userId, ct);
         
         if (category is null)
-            return Result<CategoryResponse>.Failure("Categoria não encontrada");
+        {
+            var error = CategoryErrors.NotFound;
+            return Result<CategoryResponse>.Failure(error);
+        }
         
         var response = new CategoryResponse(category.Id, category.Name, category.Description, category.Color);
         

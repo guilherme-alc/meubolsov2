@@ -1,4 +1,5 @@
 using Saldoa.Application.Categories.Abstractions;
+using Saldoa.Application.Categories.Common;
 using Saldoa.Application.Common.Abstractions;
 using Saldoa.Application.Common.Results;
 using Saldoa.Application.Transactions.Abstractions;
@@ -23,10 +24,16 @@ public class DeleteCategoryUseCase
         var category = await _categoryRepository.GetByIdForUpdateAsync(id, userId, ct);
         
         if (category is null)
-            return Result.Failure("Categoria não encontrada");
+        {
+            var error = CategoryErrors.NotFound;
+            return Result.Failure(error);
+        }
         
         if (await _transactionRepository.ExistsForCategoryAsync(id, userId, ct))
-            return Result.Failure("Não é possível excluir uma categoria com transações");
+        {
+            var error = CategoryErrors.HasTransactions;
+            return Result.Failure(error);
+        }
         
         _categoryRepository.Remove(category);
         await _unit.SaveChangesAsync(ct);

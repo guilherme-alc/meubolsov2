@@ -14,7 +14,7 @@ public class ListCategoriesUseCase
         _categoryRepository = categoryRepository;
     }
 
-    public async Task<Result<PagedResult<CategoryResponse>>> ExecuteAsync(string userId, int pageNumber, int pageSize, CancellationToken ct)
+    public async Task<PagedResult<CategoryResponse>> ExecuteAsync(string userId, int pageNumber, int pageSize, CancellationToken ct)
     {
         var data = await _categoryRepository.ListAsync(pageNumber, pageSize, userId, ct);
         
@@ -23,6 +23,6 @@ public class ListCategoriesUseCase
 
         var result = new PagedResult<CategoryResponse>(categoriesResponse, data.TotalCount, data.PageNumber, data.PageSize);
         
-        return Result<PagedResult<CategoryResponse>>.Success(result);
+        return result;
     }
 }

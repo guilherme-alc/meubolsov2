@@ -1,4 +1,5 @@
 using Saldoa.Application.Categories.Abstractions;
+using Saldoa.Application.Categories.Common;
 using Saldoa.Application.Common.Abstractions;
 using Saldoa.Application.Common.Results;
 using Saldoa.Domain.Entities;
@@ -19,7 +20,10 @@ public class CreateCategoryUseCase
     public async Task<Result<CreateCategoryResponse>> ExecuteAsync(CreateCategoryRequest request, string userId, CancellationToken ct)
     {
         if (await _categoryRepository.ExistsAsync(userId, request.Name, ct))
-            return Result<CreateCategoryResponse>.Failure($"A Categoria {request.Name} já existe");
+        {
+            var error = CategoryErrors.AlreadyExists(request.Name);
+            return Result<CreateCategoryResponse>.Failure(error);
+        }
 
         var category = new Category(userId, request.Name, request.Description, request.Color);
     
