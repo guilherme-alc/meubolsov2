@@ -11,11 +11,10 @@ public static class GetCategoryBudgetByIdEndpoint
     {
         group.MapGet("/{id:long:min(1)}", 
             async Task<IResult> (
-            long id,
-            GetCategoryBudgetByIdUseCase useCase,
-            ClaimsPrincipal user,
-            CancellationToken ct
-            ) =>
+                long id,
+                GetCategoryBudgetByIdUseCase useCase,
+                ClaimsPrincipal user,
+                CancellationToken ct) =>
             {
                 var userId = user.GetUserId();
             

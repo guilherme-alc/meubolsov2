@@ -12,11 +12,11 @@ public static class ListCategoryBudgetsEndpoint
     {
         group.MapGet("/", 
             async Task<IResult> (            
-            [AsParameters] ListCategoryBudgetsRequest request,
-            IValidator<ListCategoryBudgetsRequest> validator,
-            ListCategoryBudgetsUseCase useCase,
-            ClaimsPrincipal user,
-            CancellationToken ct) =>
+                [AsParameters] ListCategoryBudgetsRequest request,
+                IValidator<ListCategoryBudgetsRequest> validator,
+                ListCategoryBudgetsUseCase useCase,
+                ClaimsPrincipal user,
+                CancellationToken ct) =>
             {
                 var validation = await validator.ValidateAsync(request, ct);
                 if (!validation.IsValid)

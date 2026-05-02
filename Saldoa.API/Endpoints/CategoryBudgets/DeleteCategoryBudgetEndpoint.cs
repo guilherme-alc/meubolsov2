@@ -11,10 +11,10 @@ public static class DeleteCategoryBudgetEndpoint
     {
         group.MapDelete("/{id:long:min(1)}", 
             async Task<IResult> (
-            long id,
-            DeleteCategoryBudgetUseCase useCase,
-            ClaimsPrincipal user,
-            CancellationToken ct) =>
+                long id,
+                DeleteCategoryBudgetUseCase useCase,
+                ClaimsPrincipal user,
+                CancellationToken ct) =>
             {
                 var userId = user.GetUserId();
             

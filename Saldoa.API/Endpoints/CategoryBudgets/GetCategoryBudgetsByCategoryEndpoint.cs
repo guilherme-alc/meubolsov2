@@ -12,12 +12,12 @@ public static class GetCategoryBudgetsByCategoryEndpoint
     {
         group.MapGet("/by-category/{categoryId:long:min(1)}", 
             async Task<IResult> (
-            long categoryId,
-            [AsParameters] GetCategoryBudgetsByCategoryRequest request,
-            IValidator<GetCategoryBudgetsByCategoryRequest> validator,
-            GetCategoryBudgetsByCategoryUseCase useCase,
-            ClaimsPrincipal user,
-            CancellationToken ct) =>
+                long categoryId,
+                [AsParameters] GetCategoryBudgetsByCategoryRequest request,
+                IValidator<GetCategoryBudgetsByCategoryRequest> validator,
+                GetCategoryBudgetsByCategoryUseCase useCase,
+                ClaimsPrincipal user,
+                CancellationToken ct) =>
             {
                 var validation = await validator.ValidateAsync(request, ct);
                 if(!validation.IsValid)

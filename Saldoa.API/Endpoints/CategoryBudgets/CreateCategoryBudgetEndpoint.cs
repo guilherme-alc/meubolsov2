@@ -12,11 +12,11 @@ public static class CreateCategoryBudgetEndpoint
     {
         group.MapPost("/", 
             async Task<IResult> (
-            CreateCategoryBudgetRequest request,
-            IValidator<CreateCategoryBudgetRequest> validator,
-            CreateCategoryBudgetUseCase useCase,
-            ClaimsPrincipal user,
-            CancellationToken ct) =>
+                CreateCategoryBudgetRequest request,
+                IValidator<CreateCategoryBudgetRequest> validator,
+                CreateCategoryBudgetUseCase useCase,
+                ClaimsPrincipal user,
+                CancellationToken ct) =>
             {
                 var validation = await validator.ValidateAsync(request, ct);
                 if (!validation.IsValid)

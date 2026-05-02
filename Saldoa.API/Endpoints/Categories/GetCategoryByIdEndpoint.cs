@@ -9,31 +9,32 @@ public static class GetCategoryByIdEndpoint
 {
     public static void Map(RouteGroupBuilder group)
     {
-        group.MapGet("/{id:long:min(1)}", async (
-            long id,
-            GetCategoryByIdUseCase useCase,
-            ClaimsPrincipal user,
-            CancellationToken ct
-        ) =>
-        {
-            var userId = user.GetUserId();
-            
-            var result = await useCase.ExecuteAsync(id, userId, ct);
-            
-            if (!result.IsSuccess)
+        group.MapGet("/{id:long:min(1)}", 
+            async Task<IResult> (
+                long id,
+                GetCategoryByIdUseCase useCase,
+                ClaimsPrincipal user,
+                CancellationToken ct) =>
             {
-                var error = result.Error!;
-                int statusCode = MapStatusCode.GetCode(error.Type);
-
-                return TypedResults.Problem(
-                    detail: error.Message,
-                    statusCode: statusCode,
-                    title: error.Code
-                );
-            }
+                var userId = user.GetUserId();
             
-            return Results.Ok(result.Value);
-        })
+                var result = await useCase.ExecuteAsync(id, userId, ct);
+            
+                if (!result.IsSuccess)
+                {
+                    var error = result.Error!;
+                    int statusCode = MapStatusCode.GetCode(error.Type);
+
+                    return TypedResults.Problem(
+                        detail: error.Message,
+                        statusCode: statusCode,
+                        title: error.Code
+                    );
+                }
+            
+                return TypedResults.Ok(result.Value);
+            }
+        )
         .WithSummary("Obtém uma categoria")
         .WithDescription("Obtém uma categoria pelo Id");
     }

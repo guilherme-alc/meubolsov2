@@ -12,12 +12,12 @@ public static class UpdateCategoryBudgetEndpoint
     {
         group.MapPatch("/{id:long:min(1)}", 
             async Task<IResult> (
-            long id,
-            UpdateCategoryBudgetRequest request,
-            UpdateCategoryBudgetUseCase useCase,
-            IValidator<UpdateCategoryBudgetRequest> validator,
-            ClaimsPrincipal user,
-            CancellationToken ct) =>
+                long id,
+                UpdateCategoryBudgetRequest request,
+                UpdateCategoryBudgetUseCase useCase,
+                IValidator<UpdateCategoryBudgetRequest> validator,
+                ClaimsPrincipal user,
+                CancellationToken ct) =>
             {
                 var validation = await validator.ValidateAsync(request, ct);
                 if (!validation.IsValid)
