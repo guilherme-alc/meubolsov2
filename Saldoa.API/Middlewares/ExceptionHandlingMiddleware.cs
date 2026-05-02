@@ -1,4 +1,4 @@
-using System.Text.Json;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
@@ -9,7 +9,8 @@ public class ExceptionHandlingMiddleware
     private readonly RequestDelegate _next;
     private readonly ILogger<ExceptionHandlingMiddleware> _logger;
     private readonly IWebHostEnvironment _env;
-    private bool _isDevelopment => _env.IsDevelopment();
+
+    private bool IsDevelopment => _env.IsDevelopment();
 
     public ExceptionHandlingMiddleware(
         RequestDelegate next,
@@ -29,87 +30,95 @@ public class ExceptionHandlingMiddleware
         }
         catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested)
         {
-            // Cliente cancelou
             if (!context.Response.HasStarted)
-                context.Response.StatusCode = 499; // Client Closed Request
+                context.Response.StatusCode = 499;
         }
         catch (DbUpdateConcurrencyException ex)
         {
-            var message = "Conflito de concorrência. Tente novamente.";
-            var errorResponse = new
-            {
-                Message = _isDevelopment ? $"{message}: {ex.Message}" : message,
-                Details = _isDevelopment ? ex.StackTrace : ""
-            };
-            await WriteErrorAsync(context, 
-                StatusCodes.Status409Conflict, 
-                errorResponse);
+            _logger.LogWarning(ex, "Conflito de concorrência ao persistir dados");
+
+            await WriteProblemAsync(
+                context,
+                StatusCodes.Status409Conflict,
+                title: "Database.ConcurrencyConflict",
+                detail: IsDevelopment
+                    ? $"Conflito de concorrência. Tente novamente: {ex.Message}"
+                    : "Conflito de concorrência. Tente novamente.");
         }
-        catch (DbUpdateException ex) when (TryMapDbUpdate(ex, out var status, out var message))
+        catch (DbUpdateException ex) when (TryMapDbUpdate(ex, out var statusCode, out var title, out var detail))
         {
             _logger.LogError(ex, "Erro ao persistir dados");
-            var errorResponse = new
-            {
-                Message = message,
-                Details = _isDevelopment ? ex.Message : ""
-            };
-            await WriteErrorAsync(context, status, errorResponse);
+
+            await WriteProblemAsync(
+                context,
+                statusCode,
+                title,
+                IsDevelopment ? $"{detail} {ex.Message}" : detail);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erro inesperado");
-            var errorResponse = new
-            {
-                Message = _isDevelopment ? ex.Message : "Erro interno no servidor",
-                Details = _isDevelopment ? ex.StackTrace : ""
-            };
-            
-            await WriteErrorAsync(context,
+
+            await WriteProblemAsync(
+                context,
                 StatusCodes.Status500InternalServerError,
-                errorResponse);
+                title: "Server.UnexpectedError",
+                detail: IsDevelopment ? ex.Message : "Erro interno no servidor");
         }
     }
 
-    private static async Task WriteErrorAsync(
+    private static async Task WriteProblemAsync(
         HttpContext context,
         int statusCode,
-        object errorResponse)
+        string title,
+        string detail)
     {
         if (context.Response.HasStarted)
             return;
-        
+
         context.Response.Clear();
         context.Response.StatusCode = statusCode;
-        context.Response.ContentType = "application/json";
-        
-        var payload = JsonSerializer.Serialize(errorResponse);
-        await context.Response.WriteAsync(payload);
+        context.Response.ContentType = "application/problem+json";
+
+        var problem = new ProblemDetails
+        {
+            Status = statusCode,
+            Title = title,
+            Detail = detail,
+            Instance = context.Request.Path
+        };
+
+        await context.Response.WriteAsJsonAsync(problem);
     }
-    
-    private static bool TryMapDbUpdate(DbUpdateException ex, out int status, out string message)
+
+    private static bool TryMapDbUpdate(
+        DbUpdateException ex,
+        out int statusCode,
+        out string title,
+        out string detail)
     {
-        // Postgres unique violation.
         if (ex.InnerException is PostgresException pg)
         {
-            // 23505 = unique_violation
             if (pg.SqlState == PostgresErrorCodes.UniqueViolation)
             {
-                status = StatusCodes.Status409Conflict;
-                message = "Já existe um registro com esses dados.";
+                statusCode = StatusCodes.Status409Conflict;
+                title = "Database.UniqueViolation";
+                detail = "Já existe um registro com esses dados.";
                 return true;
             }
 
-            // 23503 = foreign_key_violation
             if (pg.SqlState == PostgresErrorCodes.ForeignKeyViolation)
             {
-                status = StatusCodes.Status409Conflict;
-                message = "Não foi possível concluir por vínculo com outro registro.";
+                statusCode = StatusCodes.Status409Conflict;
+                title = "Database.ForeignKeyViolation";
+                detail = "Não foi possível concluir por vínculo com outro registro.";
                 return true;
             }
         }
 
-        status = 0;
-        message = "";
+        statusCode = 0;
+        title = "";
+        detail = "";
         return false;
     }
 }
