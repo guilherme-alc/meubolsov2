@@ -1,3 +1,4 @@
+using Saldoa.API.Common;
 using Saldoa.Application.Auth.Refresh;
 
 namespace Saldoa.API.Endpoints.Auth;
@@ -6,19 +7,33 @@ public static class RefreshEndpoint
 {
     public static void Map(RouteGroupBuilder group)
     {
-        group.MapPost("/refresh", async (
+        group.MapPost("/refresh", async Task<IResult> (
             RefreshRequest request,
             RefreshUseCase useCase,
             CancellationToken ct) =>
         {
             if (string.IsNullOrWhiteSpace(request.RefreshToken))
-                return Results.Unauthorized();
+                return TypedResults.Problem(
+                    title: "Auth.InvalidAccess",
+                    detail: "Acesso inválido",
+                    statusCode: StatusCodes.Status401Unauthorized
+                );
 
             var result = await useCase.ExecuteAsync(request.RefreshToken, ct);
-            if (!result.IsSuccess)
-                return Results.Unauthorized();
 
-            return Results.Ok(result.Value);
+            if (!result.IsSuccess)
+            {
+                var error = result.Error!;
+                int statusCode = MapStatusCode.GetCode(error.Type);
+
+                return TypedResults.Problem(
+                    detail: error.Message,
+                    statusCode: statusCode,
+                    title: error.Code
+                );
+            }
+
+            return TypedResults.Ok(result.Value);
         })
         .WithSummary("Renova o Access Token")
         .WithDescription(

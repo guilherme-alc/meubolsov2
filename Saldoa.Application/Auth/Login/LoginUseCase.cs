@@ -31,7 +31,10 @@ public class LoginUseCase
             .ValidateCredentialsAndGetUserIdAsync(request.Email, request.Password, ct);
        
         if (userId is null)
-            return Result<AuthResponse>.Failure("Acesso inválido");
+        {
+            var error = AuthErrors.InvalidAccess;
+            return Result<AuthResponse>.Failure(error);
+        }
 
         var accessTokenResult = _jwtProvider.GenerateToken(
             userId: userId,

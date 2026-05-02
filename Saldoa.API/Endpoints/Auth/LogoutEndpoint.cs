@@ -6,17 +6,17 @@ public class LogoutEndpoint
 {
     public static void Map(RouteGroupBuilder group)
     {
-        group.MapPost("/logout", async (
+        group.MapPost("/logout", async Task<IResult> (
             HttpRequest http,
             LogoutRequest request,
             LogoutUseCase useCase,
             CancellationToken ct) =>
         {
             if (string.IsNullOrWhiteSpace(request.RefreshToken))
-                return Results.NoContent(); // NoContent por segurança
+                return TypedResults.NoContent(); // NoContent por segurança
 
             await useCase.ExecuteAsync(request.RefreshToken, ct);
-            return Results.NoContent();
+            return TypedResults.NoContent();
         })
         .WithSummary("Encerra a sessão do usuário")
         .WithDescription(

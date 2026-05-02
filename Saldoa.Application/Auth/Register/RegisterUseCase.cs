@@ -1,4 +1,5 @@
 using Saldoa.Application.Auth.Abstractions;
+using Saldoa.Application.Auth.Common;
 using Saldoa.Application.Common.Results;
 using Saldoa.Application.Identity.Abstractions;
 
@@ -17,7 +18,10 @@ public class RegisterUseCase
     public async Task<Result<string>> ExecuteAsync(RegisterRequest request, CancellationToken ct)
     {
         if (await _identityService.UserExistsAsync(request.Email, ct))
-            return Result<string>.Failure("Usuário já existe");
+        {
+            var error = AuthErrors.AlreadyExists;
+            return Result<string>.Failure(error);
+        }
         
         var userId = await _identityService.CreateUserAsync(
             request.Email, 

@@ -31,12 +31,18 @@ public sealed class RefreshUseCase
         var stored = await _refreshRepo.GetByHashAsync(hash, ct);
 
         if (stored is null || stored.IsExpired || stored.IsRevoked)
-            return Result<AuthResponse>.Failure("Acesso inválido");
+        {
+            var error = AuthErrors.InvalidAccess;
+            return Result<AuthResponse>.Failure(error);
+        }
 
         var email = await _identityService.GetEmailByUserIdAsync(stored.UserId, ct);
         if (email is null)
-            return Result<AuthResponse>.Failure("Acesso inválido");
-        
+        {
+            var error = AuthErrors.InvalidAccess;
+            return Result<AuthResponse>.Failure(error);
+        }
+
         var newRefresh = _refreshTokenService.Generate();
         stored.Revoke(replacedByTokenHash: newRefresh.TokenHash);
 

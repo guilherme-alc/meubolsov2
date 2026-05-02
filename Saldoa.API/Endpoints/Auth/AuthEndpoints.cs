@@ -8,6 +8,7 @@ public static class AuthEndpoints
     public static void MapAuthEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/auth")
+            .WithTags("Auth")
             .AllowAnonymous();
         
         RegisterEndpoint.Map(group);
