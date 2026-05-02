@@ -1,5 +1,4 @@
 using FluentValidation;
-using Saldoa.Domain.Enums;
 
 namespace Saldoa.Application.Transactions.Update;
 

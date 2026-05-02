@@ -1,5 +1,3 @@
-using Saldoa.Domain.Enums;
-
 namespace Saldoa.Application.Transactions.ListByCategory;
 
 public sealed record ListTransactionsByCategoryRequest(

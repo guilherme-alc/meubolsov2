@@ -1,5 +1,4 @@
 using FluentValidation;
-using Saldoa.Domain.Entities;
 
 namespace Saldoa.Application.Categories.Update;
 

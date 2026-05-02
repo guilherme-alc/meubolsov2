@@ -1,6 +1,3 @@
-using Saldoa.Application.Auth.Logout;
-using Saldoa.Application.Auth.Refresh;
-
 namespace Saldoa.API.Endpoints.Auth;
 
 public static class AuthEndpoints

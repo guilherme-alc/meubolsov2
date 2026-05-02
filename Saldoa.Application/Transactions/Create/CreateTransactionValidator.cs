@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-using System.Data;
 using FluentValidation;
 using Saldoa.Domain.Enums;
 

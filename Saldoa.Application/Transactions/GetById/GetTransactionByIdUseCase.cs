@@ -1,4 +1,3 @@
-using Saldoa.Application.Categories.Abstractions;
 using Saldoa.Application.Common.Results;
 using Saldoa.Application.Transactions.Abstractions;
 using Saldoa.Application.Transactions.Common;

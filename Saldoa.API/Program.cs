@@ -1,6 +1,5 @@
 using Saldoa.API.Extensions;
 
-
 namespace Saldoa.API
 {
     public class Program
