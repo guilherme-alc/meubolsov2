@@ -1,4 +1,5 @@
 using Saldoa.Application.CategoryBudgets.Abstractions;
+using Saldoa.Application.CategoryBudgets.Common;
 using Saldoa.Application.Common.Abstractions;
 using Saldoa.Application.Common.Results;
 
@@ -20,7 +21,10 @@ public class DeleteCategoryBudgetUseCase
         var categoryBudget = await _categoryBudgetRepository.GetByIdForUpdateAsync(categoryBudgetId, userId, ct);
         
         if(categoryBudget is null)
-            return Result.Failure("Gasto por categoria não encontrado");
+        {
+            var error = CategoryBudgetErrors.NotFound;
+            return Result.Failure(error);
+        }
         
         _categoryBudgetRepository.Remove(categoryBudget);
         await _unitOfWork.SaveChangesAsync(ct);

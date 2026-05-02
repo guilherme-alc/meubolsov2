@@ -21,7 +21,10 @@ public class GetCategoryBudgetByIdUseCase
         var categoryBudget = await _categoryBudgetRepository.GetByIdAsync(categoryBudgetId, userId, ct);
         
         if(categoryBudget is null)
-            return Result<CategoryBudgetDetailsResponse>.Failure("Gasto por categoria não encontrado");
+        {
+            var error = CategoryBudgetErrors.NotFound;
+            return Result<CategoryBudgetDetailsResponse>.Failure(error);
+        }
 
         var total = await _transactionRepository.GetTotalForPeriodAsync(
             userId, 

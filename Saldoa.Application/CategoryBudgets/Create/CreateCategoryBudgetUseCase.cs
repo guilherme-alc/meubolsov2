@@ -25,7 +25,8 @@ public class CreateCategoryBudgetUseCase
                 request.PeriodStart,
                 request.PeriodEnd, ct))
         {
-            return Result<CategoryBudgetResponse>.Failure("Já existe um limite de gasto para essa categoria no período informado");
+            var error = CategoryBudgetErrors.AlreadyExists;
+            return Result<CategoryBudgetResponse>.Failure(error);
         }
 
         var categoryBudget = new CategoryBudget(request.CategoryId, request.PeriodStart, request.PeriodEnd, request.LimitAmount, userId);

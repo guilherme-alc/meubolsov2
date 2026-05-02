@@ -1,4 +1,5 @@
 using Saldoa.Application.CategoryBudgets.Abstractions;
+using Saldoa.Application.CategoryBudgets.Common;
 using Saldoa.Application.Common.Abstractions;
 using Saldoa.Application.Common.Results;
 
@@ -20,11 +21,17 @@ public class UpdateCategoryBudgetUseCase
         var categoryBudget = await _categoryBudgetRepository.GetByIdForUpdateAsync(categoryBudgetId, userId, ct);
         
         if (categoryBudget == null)
-            return Result.Failure("Limite de gasto por categoria não encontrado");
-        
+        {
+            var error = CategoryBudgetErrors.NotFound;
+            return Result.Failure(error);
+        }
+
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         if(categoryBudget.PeriodEnd < today)
-            return Result.Failure("Não é possível alterar um limite de gasto já encerrado.");
+        {
+            var error = CategoryBudgetErrors.ClosedPeriod;
+            return Result.Failure(error);
+        }
 
         var newStart = request.PeriodStart ?? categoryBudget.PeriodStart;
         var newEnd = request.PeriodEnd ?? categoryBudget.PeriodEnd;
@@ -40,7 +47,10 @@ public class UpdateCategoryBudgetUseCase
                 ct);
 
             if (exists)
-                return Result.Failure("Já existe um limite de gasto para essa categoria no período informado.");
+            {
+                var error = CategoryBudgetErrors.AlreadyExists;
+                return Result.Failure(error);
+            }
 
             categoryBudget.SetPeriod(newStart, newEnd);
         }
