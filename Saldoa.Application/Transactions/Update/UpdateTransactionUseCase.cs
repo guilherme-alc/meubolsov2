@@ -1,4 +1,5 @@
 using Saldoa.Application.Categories.Abstractions;
+using Saldoa.Application.Categories.Common;
 using Saldoa.Application.Common.Abstractions;
 using Saldoa.Application.Common.Results;
 using Saldoa.Application.Transactions.Abstractions;
@@ -34,11 +35,17 @@ public class UpdateTransactionUseCase
     {
         var transaction = await _transactionRepository.GetByIdForUpdateAsync(id, userId, ct);
         if (transaction is null)
-            return Result<UpdateTransactionResponse>.Failure("Transacao nao encontrada");
+        {
+            var error = TransactionErrors.NotFound;
+            return Result<UpdateTransactionResponse>.Failure(error);
+        }
 
         var category = await _categoryRepository.GetByIdAsync(request.CategoryId, userId, ct);
         if (category is null)
-            return Result<UpdateTransactionResponse>.Failure("Categoria nao encontrada");
+        {
+            var error = CategoryErrors.NotFound;
+            return Result<UpdateTransactionResponse>.Failure(error);
+        }
 
         List<BudgetAlert> budgetAlerts = [];
 
@@ -63,7 +70,10 @@ public class UpdateTransactionUseCase
                 : [transaction];
 
             if (affectedTransactions is null || affectedTransactions.Count == 0)
-                return Result<UpdateTransactionResponse>.Failure("Parcelas nao encontradas");
+            {
+                var error = TransactionErrors.InstallmentNotFound;
+                return Result<UpdateTransactionResponse>.Failure(error);
+            }
 
             foreach (var affectedTransaction in affectedTransactions)
             {

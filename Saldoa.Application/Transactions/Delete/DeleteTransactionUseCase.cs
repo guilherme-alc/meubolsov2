@@ -1,6 +1,7 @@
 using Saldoa.Application.Common.Abstractions;
 using Saldoa.Application.Common.Results;
 using Saldoa.Application.Transactions.Abstractions;
+using Saldoa.Application.Transactions.Common;
 
 namespace Saldoa.Application.Transactions.Delete;
 
@@ -19,7 +20,10 @@ public class DeleteTransactionUseCase
     {
         var transaction = await _transactionRepository.GetByIdForUpdateAsync(id, userId, ct);
         if (transaction is null)
-            return Result.Failure("Transação não encontrada");
+        {
+            var error = TransactionErrors.NotFound;
+            return Result.Failure(error);
+        }
         
         if(transaction.InstallmentInfo.InstallmentGroupId == null)
             _transactionRepository.Delete(transaction);

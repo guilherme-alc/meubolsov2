@@ -1,4 +1,5 @@
 using Saldoa.Application.Categories.Abstractions;
+using Saldoa.Application.Categories.Common;
 using Saldoa.Application.Common.Abstractions;
 using Saldoa.Application.Common.Results;
 using Saldoa.Application.Transactions.Abstractions;
@@ -31,7 +32,10 @@ public class CreateTransactionUseCase
         var category = await _categoryRepository.GetByIdAsync(request.CategoryId, userId, ct);
         
         if(category == null)
-            return Result<TransactionsResponse>.Failure("Categoria não encontrada");
+        {
+            var error = CategoryErrors.NotFound;
+            return Result<TransactionsResponse>.Failure(error);
+        }
 
         List<BudgetAlert> budgetAlerts = [];
 

@@ -19,8 +19,11 @@ public class GetTransactionByIdUseCase
         var transaction = await _transactionRepository.GetByIdWithCategoryAsync(id, userId, ct);
 
         if (transaction is null)
-            return Result<TransactionResponse>.Failure("Transação não encontrada.");
-        
+        {
+            var error = TransactionErrors.NotFound;
+            return Result<TransactionResponse>.Failure(error);
+        }
+
         return Result<TransactionResponse>.Success(new TransactionResponse(
             transaction.Id,
             transaction.Title,
