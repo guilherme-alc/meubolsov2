@@ -26,24 +26,17 @@ public class UpdateCategoryUseCase
             return Result.Failure(error);
         }
 
-        if (request.Name is not null)
+        var nameNormalized = request.Name.Trim().ToUpperInvariant();
+        if (nameNormalized != category.NormalizedName 
+            && await _categoryRepository.ExistsAsync(userId, request.Name, ct))
         {
-            var newNormalized = request.Name.Trim().ToUpperInvariant();
-            if (newNormalized != category.NormalizedName 
-                && await _categoryRepository.ExistsAsync(userId, request.Name, ct))
-            {
-                var error = CategoryErrors.AlreadyExists(request.Name);
-                return Result.Failure(error);
-            }
-            
-            category.SetName(request.Name);
+            var error = CategoryErrors.AlreadyExists(request.Name);
+            return Result.Failure(error);
         }
-
-        if(request.Description is not null)
-            category.SetDescription(request.Description);
-        
-        if(request.Color is not null)
-            category.SetColor(request.Color);
+            
+        category.SetName(request.Name);
+        category.SetDescription(request.Description);
+        category.SetColor(request.Color);
         
         await _unit.SaveChangesAsync(ct);
         return Result.Success();

@@ -34,8 +34,8 @@ namespace Saldoa.Domain.Entities
     
         public void SetLimitAmount(decimal limitAmount)
         {
-            if (limitAmount <= 0)
-                throw new ArgumentOutOfRangeException(nameof(limitAmount), "O limite deve ser maior que zero.");
+            if (limitAmount < 0)
+                throw new ArgumentOutOfRangeException(nameof(limitAmount), "O limite não pode ser negativo.");
 
             LimitAmount = limitAmount;
         }

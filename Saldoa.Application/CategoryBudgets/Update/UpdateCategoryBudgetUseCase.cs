@@ -33,17 +33,14 @@ public class UpdateCategoryBudgetUseCase
             return Result.Failure(error);
         }
 
-        var newStart = request.PeriodStart ?? categoryBudget.PeriodStart;
-        var newEnd = request.PeriodEnd ?? categoryBudget.PeriodEnd;
-
-        if (newStart != categoryBudget.PeriodStart || newEnd != categoryBudget.PeriodEnd)
+        if (request.PeriodStart != categoryBudget.PeriodStart || request.PeriodEnd != categoryBudget.PeriodEnd)
         {
             var exists = await _categoryBudgetRepository.ExistsForPeriodAsync(
                 userId,
                 categoryBudget.CategoryId,
                 categoryBudget.Id,
-                newStart,
-                newEnd,
+                request.PeriodStart,
+                request.PeriodEnd,
                 ct);
 
             if (exists)
@@ -52,11 +49,10 @@ public class UpdateCategoryBudgetUseCase
                 return Result.Failure(error);
             }
 
-            categoryBudget.SetPeriod(newStart, newEnd);
+            categoryBudget.SetPeriod(request.PeriodStart, request.PeriodEnd);
         }
         
-        if(request.LimitAmount.HasValue && request.LimitAmount.Value > 0)
-            categoryBudget.SetLimitAmount(request.LimitAmount.Value);
+        categoryBudget.SetLimitAmount(request.LimitAmount);
         
         await _unit.SaveChangesAsync(ct);
         return Result.Success();

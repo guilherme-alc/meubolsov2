@@ -10,7 +10,7 @@ public static class UpdateCategoryEndpoint
 {
     public static void Map(RouteGroupBuilder group)
     {
-        group.MapPatch("/{id:long}", 
+        group.MapPut("/{id:long}", 
             async Task<IResult> (
                 long id,
                 UpdateCategoryRequest request,
@@ -56,8 +56,7 @@ public static class UpdateCategoryEndpoint
         )
         .WithSummary("Atualiza categoria")
         .WithDescription(
-            "Atualiza parcialmente a categoria. Apenas propriedades enviadas com valor diferente de null serão alteradas. " +
-            "Para limpar um campo opcional, envie uma string vazia."
+            "Atualiza completamente a categoria."
         );
     }
 }

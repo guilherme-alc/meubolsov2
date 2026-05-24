@@ -6,14 +6,12 @@ public sealed class UpdateCategoryValidator : AbstractValidator<UpdateCategoryRe
 {
     public UpdateCategoryValidator()
     {
-        When(x => x.Name is not null, () =>
-        {
-            RuleFor(x => x.Name!)
-                .Must(n => !string.IsNullOrWhiteSpace(n))
-                .WithMessage("O nome da categoria precisa ser fornecido")
-                .MaximumLength(100)
-                .WithMessage("O nome não pode ultrapassar 100 caracteres");
-        });
+
+        RuleFor(x => x.Name!)
+            .Must(n => !string.IsNullOrWhiteSpace(n))
+            .WithMessage("O nome da categoria precisa ser fornecido")
+            .MaximumLength(100)
+            .WithMessage("O nome não pode ultrapassar 100 caracteres");
 
         When(x => x.Description is not null, () =>
         {

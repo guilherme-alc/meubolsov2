@@ -10,7 +10,7 @@ public static class UpdateCategoryBudgetEndpoint
 {
     public static void Map(RouteGroupBuilder group)
     {
-        group.MapPatch("/{id:long:min(1)}", 
+        group.MapPut("/{id:long:min(1)}", 
             async Task<IResult> (
                 long id,
                 UpdateCategoryBudgetRequest request,
@@ -56,7 +56,7 @@ public static class UpdateCategoryBudgetEndpoint
         )
         .WithSummary("Atualiza limite de gasto da categoria")
         .WithDescription(
-            "Atualiza parcialmente o limite. Apenas propriedades enviadas com valor diferente de null serão alteradas. " +
+            "Atualiza completamente o limite de gasto. " +
             "Não será possível atualizar limites já expirados, ou que a atualização crie sobreposição de limites já existentes"
         );
     }
