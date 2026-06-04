@@ -2,7 +2,7 @@
 
 namespace Saldoa.API.Common
 {
-    public class MapStatusCode
+    public class StatusCodeMapper
     {
         internal static int GetCode(ErrorType type) => type switch
         {

@@ -23,7 +23,7 @@ public static class DeleteCategoryEndpoint
                 if (!result.IsSuccess)
                 {
                     var error = result.Error!;
-                    int statusCode = MapStatusCode.GetCode(error.Type);
+                    int statusCode = StatusCodeMapper.GetCode(error.Type);
 
                     return TypedResults.Problem(
                         detail: error.Message,

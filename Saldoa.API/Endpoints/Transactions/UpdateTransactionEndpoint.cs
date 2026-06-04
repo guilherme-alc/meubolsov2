@@ -42,7 +42,7 @@ public static class UpdateTransactionEndpoint
                 if (!result.IsSuccess)
                 {
                     var error = result.Error!;
-                    var statusCode = MapStatusCode.GetCode(error.Type);
+                    var statusCode = StatusCodeMapper.GetCode(error.Type);
 
                     return TypedResults.Problem(
                         detail: error.Message,
