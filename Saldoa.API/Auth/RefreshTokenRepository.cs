@@ -12,7 +12,4 @@ public class RefreshTokenRepository(SaldoaDbContext dbContext) : IRefreshTokenRe
 
     public Task<RefreshToken?> GetByHashAsync(string tokenHash, CancellationToken ct = default)
         => dbContext.Set<RefreshToken>().SingleOrDefaultAsync(x => x.TokenHash == tokenHash, ct);
-
-    public Task SaveChangesAsync(CancellationToken ct = default)
-        => dbContext.SaveChangesAsync(ct);
 }

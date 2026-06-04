@@ -68,51 +68,10 @@ public static class ServiceCollectionExtensions
         builder.Services.Configure<JwtOptions>(
             builder.Configuration.GetSection(JwtOptions.SectionName));
 
-        builder.Services.AddIdentityCore<ApplicationUser>(options =>
-        {
-            options.Password.RequiredLength = 8;
-            options.Password.RequireDigit = true;
-            options.Password.RequireLowercase = true;
-            options.Password.RequireUppercase = true;
-            options.Password.RequireNonAlphanumeric = true;
-            options.User.RequireUniqueEmail = true;
-        })
-        .AddEntityFrameworkStores<SaldoaDbContext>()
-        .AddDefaultTokenProviders();
-
-        builder.Services
-            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
-            {
-                var jwt = builder.Configuration
-                    .GetSection(JwtOptions.SectionName)
-                    .Get<JwtOptions>()!;
-
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidIssuer = jwt.Issuer,
-                    ValidateAudience = true,
-                    ValidAudience = jwt.Audience,
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey =
-                        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.Secret)),
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero
-                };
-            });
-
-        builder.Services.AddAuthorization(options =>
-        {
-            options.FallbackPolicy = new AuthorizationPolicyBuilder()
-                .RequireAuthenticatedUser()
-                .Build();
-        });
-
-        builder.Services.AddScoped<IJwtProvider, JwtProvider>();
-        builder.Services.AddScoped<IIdentityService, IdentityService>();
-        builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
-        builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        builder.Services.AddSaldoaIdentity();
+        builder.Services.AddJwtAuthentication(builder.Configuration);
+        builder.Services.AddAuthenticatedUserFallbackPolicy();
+        builder.Services.AddAuthServices();
 
         return builder;
     }
@@ -166,5 +125,73 @@ public static class ServiceCollectionExtensions
         builder.Services.AddScoped<GetCategoryBudgetsByCategoryUseCase>();
     
         return builder;
+    }
+
+    private static IServiceCollection AddSaldoaIdentity(this IServiceCollection services)
+    {
+        services.AddIdentityCore<ApplicationUser>(options =>
+        {
+            options.Password.RequiredLength = 8;
+            options.Password.RequireDigit = true;
+            options.Password.RequireLowercase = true;
+            options.Password.RequireUppercase = true;
+            options.Password.RequireNonAlphanumeric = true;
+            options.User.RequireUniqueEmail = true;
+        })
+        .AddEntityFrameworkStores<SaldoaDbContext>()
+        .AddDefaultTokenProviders();
+
+        return services;
+    }
+
+    private static IServiceCollection AddJwtAuthentication(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                var jwt = configuration
+                    .GetSection(JwtOptions.SectionName)
+                    .Get<JwtOptions>()!;
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = jwt.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = jwt.Audience,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey =
+                        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.Secret)),
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+
+        return services;
+    }
+
+    private static IServiceCollection AddAuthenticatedUserFallbackPolicy(this IServiceCollection services)
+    {
+        services.AddAuthorization(options =>
+        {
+            options.FallbackPolicy = new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build();
+        });
+
+        return services;
+    }
+
+    private static IServiceCollection AddAuthServices(this IServiceCollection services)
+    {
+        services.AddScoped<IJwtProvider, JwtProvider>();
+        services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<IRefreshTokenGenerator, RefreshTokenGenerator>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
+        return services;
     }
 }

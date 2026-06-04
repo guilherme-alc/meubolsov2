@@ -16,7 +16,7 @@ public class JwtProvider : IJwtProvider
         _options = options.Value;
     }
     
-    public AccessTokenResult GenerateToken(string userId, string email, IEnumerable<Claim> claims)
+    public AccessTokenResult CreateAccessToken(string userId, string email, IEnumerable<Claim> claims)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Secret));
         

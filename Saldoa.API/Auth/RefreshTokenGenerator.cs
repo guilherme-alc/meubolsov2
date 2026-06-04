@@ -4,10 +4,10 @@ using Microsoft.Extensions.Options;
 
 namespace Saldoa.API.Auth;
 
-public sealed class RefreshTokenService : IRefreshTokenService
+public sealed class RefreshTokenGenerator : IRefreshTokenGenerator
 {
     private readonly JwtOptions _options;
-    public RefreshTokenService(IOptions<JwtOptions> options) => _options = options.Value;
+    public RefreshTokenGenerator(IOptions<JwtOptions> options) => _options = options.Value;
 
     public RefreshTokenResult Generate()
     {

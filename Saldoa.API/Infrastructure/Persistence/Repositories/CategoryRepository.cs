@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Saldoa.API.Infrastructure.Persistence;
 using Saldoa.Application.Categories.Abstractions;
 using Saldoa.Application.Common.Pagination;
 using Saldoa.Domain.Entities;

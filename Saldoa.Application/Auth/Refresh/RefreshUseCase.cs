@@ -1,5 +1,6 @@
 using Saldoa.Application.Auth.Abstractions;
 using Saldoa.Application.Auth.Common;
+using Saldoa.Application.Common.Abstractions;
 using Saldoa.Application.Common.Results;
 using Saldoa.Application.Identity.Abstractions;
 using Saldoa.Domain.Auth;
@@ -11,18 +12,21 @@ public sealed class RefreshUseCase
     private readonly IRefreshTokenRepository _refreshRepo;
     private readonly IJwtProvider _jwtProvider;
     private readonly IIdentityService _identityService;
-    private readonly IRefreshTokenService _refreshTokenService;
+    private readonly IRefreshTokenGenerator _refreshTokenService;
+    private readonly IUnitOfWork _unitOfWork;
 
     public RefreshUseCase(
         IRefreshTokenRepository refreshRepo,
         IJwtProvider jwtProvider,
         IIdentityService identityService,
-        IRefreshTokenService refreshTokenService)
+        IRefreshTokenGenerator refreshTokenService,
+        IUnitOfWork unitOfWork)
     {
         _refreshRepo = refreshRepo;
         _jwtProvider = jwtProvider;
         _identityService = identityService;
         _refreshTokenService = refreshTokenService;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<AuthResponse>> ExecuteAsync(string refreshTokenRaw, CancellationToken ct)
@@ -48,9 +52,9 @@ public sealed class RefreshUseCase
 
         var newEntity = new RefreshToken(newRefresh.TokenHash, stored.UserId, newRefresh.ExpiresAt);
         await _refreshRepo.AddAsync(newEntity, ct);
-        await _refreshRepo.SaveChangesAsync(ct);
+        await _unitOfWork.SaveChangesAsync(ct);
 
-        var newAccessResult = _jwtProvider.GenerateToken(
+        var newAccessResult = _jwtProvider.CreateAccessToken(
             userId: stored.UserId,
             email: email,
             claims: []);
