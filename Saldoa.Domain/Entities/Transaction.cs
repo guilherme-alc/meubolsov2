@@ -1,4 +1,5 @@
 ﻿using Saldoa.Domain.Enums;
+using Saldoa.Domain.Exceptions;
 using Saldoa.Domain.ValueObjects;
 
 namespace Saldoa.Domain.Entities
@@ -17,7 +18,7 @@ namespace Saldoa.Domain.Entities
             InstallmentInfo installmentInfo)
         {
             if (string.IsNullOrWhiteSpace(userId))
-                throw new ArgumentException("Usuário inválido.", nameof(userId));
+                throw new DomainException("Usuário inválido.");
             UserId = userId;
             InitTitle(title);
             SetDescription(description);
@@ -26,7 +27,7 @@ namespace Saldoa.Domain.Entities
             PaidOrReceivedAt = paidOrReceivedAt;
             CreatedAt = DateTimeOffset.UtcNow;
             CategoryId = categoryId;
-            InstallmentInfo = installmentInfo ?? throw new ArgumentNullException(nameof(installmentInfo));   
+            InstallmentInfo = installmentInfo ?? throw new DomainException(nameof(installmentInfo));   
         }
 
         public long Id { get; private set; }
@@ -44,7 +45,7 @@ namespace Saldoa.Domain.Entities
         public void InitTitle(string title)
         {
             if (string.IsNullOrWhiteSpace(title))
-                throw new ArgumentException("Título é obrigatório.", nameof(title));
+                throw new DomainException("Título é obrigatório.");
 
             Title = title.Trim();
         }
@@ -85,7 +86,7 @@ namespace Saldoa.Domain.Entities
                 return;
 
             if (categoryId.Value <= 0)
-                throw new ArgumentOutOfRangeException(nameof(categoryId), "Categoria inválida.");
+                throw new DomainException("Categoria inválida.");
             CategoryId = categoryId.Value;
         }
     }

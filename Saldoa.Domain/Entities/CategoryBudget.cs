@@ -1,3 +1,5 @@
+using Saldoa.Domain.Exceptions;
+
 namespace Saldoa.Domain.Entities
 {
 
@@ -8,7 +10,7 @@ namespace Saldoa.Domain.Entities
         public CategoryBudget(long categoryId, DateOnly periodStart, DateOnly periodEnd, decimal limitAmount, string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
-                throw new ArgumentException("Usuário inválido.", nameof(userId));
+                throw new DomainException("Usuário inválido.");
             SetCategoryId(categoryId);
             SetPeriod(periodStart, periodEnd);
             SetLimitAmount(limitAmount);
@@ -27,7 +29,7 @@ namespace Saldoa.Domain.Entities
         public void SetCategoryId(long categoryId)
         {
             if (categoryId <= 0) 
-                throw new ArgumentOutOfRangeException(nameof(categoryId), "Categoria inválida.");
+                throw new DomainException("Categoria inválida.");
         
             CategoryId = categoryId;
         }
@@ -35,7 +37,7 @@ namespace Saldoa.Domain.Entities
         public void SetLimitAmount(decimal limitAmount)
         {
             if (limitAmount < 0)
-                throw new ArgumentOutOfRangeException(nameof(limitAmount), "O limite não pode ser negativo.");
+                throw new DomainException("O limite não pode ser negativo.");
 
             LimitAmount = limitAmount;
         }
@@ -43,7 +45,7 @@ namespace Saldoa.Domain.Entities
         public void SetPeriod(DateOnly start, DateOnly end)
         {
             if (start > end)
-                throw new ArgumentException("O início do período não pode ser maior que o fim.");
+                throw new DomainException("O início do período não pode ser maior que o fim.");
 
             PeriodStart = start;
             PeriodEnd = end;

@@ -1,4 +1,6 @@
-﻿namespace Saldoa.Domain.Entities
+﻿using Saldoa.Domain.Exceptions;
+
+namespace Saldoa.Domain.Entities
 {
     public class Category
     {
@@ -6,7 +8,7 @@
         public Category(string userId, string name, string? description, string? color)
         {
             if (string.IsNullOrWhiteSpace(userId))
-                throw new ArgumentException("Usuário inválido.", nameof(userId));
+                throw new DomainException("Usuário inválido.");
             SetName(name);
             SetDescription(description);
             SetColor(color);
@@ -25,7 +27,7 @@
         public void SetName(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Nome da categoria é obrigatório.", nameof(name));
+                throw new DomainException("Nome da categoria é obrigatório.");
 
             Name = name.Trim();
             NormalizedName = Name.ToUpperInvariant();

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using Saldoa.Domain.Exceptions;
 
 namespace Saldoa.API.Middlewares;
 
@@ -43,7 +44,8 @@ public class ExceptionHandlingMiddleware
                 title: "Database.ConcurrencyConflict",
                 detail: IsDevelopment
                     ? $"Conflito de concorrência. Tente novamente: {ex.Message}"
-                    : "Conflito de concorrência. Tente novamente.");
+                    : "Conflito de concorrência. Tente novamente."
+            );
         }
         catch (DbUpdateException ex) when (TryMapDbUpdate(ex, out var statusCode, out var title, out var detail))
         {
@@ -53,7 +55,19 @@ public class ExceptionHandlingMiddleware
                 context,
                 statusCode,
                 title,
-                IsDevelopment ? $"{detail} {ex.Message}" : detail);
+                IsDevelopment ? $"{detail} {ex.Message}" : detail
+            );
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogWarning(ex, "Violação de regra de domínio");
+
+            await WriteProblemAsync(
+                    context,
+                    StatusCodes.Status400BadRequest,
+                    title: "Domain.ValidationError",
+                    detail: ex.Message
+            );
         }
         catch (Exception ex)
         {
@@ -63,7 +77,8 @@ public class ExceptionHandlingMiddleware
                 context,
                 StatusCodes.Status500InternalServerError,
                 title: "Server.UnexpectedError",
-                detail: IsDevelopment ? ex.Message : "Erro interno no servidor");
+                detail: IsDevelopment ? ex.Message : "Erro interno no servidor"
+            );
         }
     }
 
