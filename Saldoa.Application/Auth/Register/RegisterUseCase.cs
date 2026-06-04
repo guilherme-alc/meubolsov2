@@ -1,4 +1,3 @@
-using Saldoa.Application.Auth.Abstractions;
 using Saldoa.Application.Auth.Common;
 using Saldoa.Application.Common.Results;
 using Saldoa.Application.Identity.Abstractions;
@@ -8,12 +7,10 @@ namespace Saldoa.Application.Auth.Register;
 public class RegisterUseCase
 {
     private readonly IIdentityService _identityService;
-    private readonly IJwtProvider _jwtProvider;
 
-    public RegisterUseCase(IIdentityService identityService, IJwtProvider jwtProvider)
+    public RegisterUseCase(IIdentityService identityService)
     {
         _identityService = identityService;
-        _jwtProvider = jwtProvider;
     }
     public async Task<Result<string>> ExecuteAsync(RegisterRequest request, CancellationToken ct)
     {

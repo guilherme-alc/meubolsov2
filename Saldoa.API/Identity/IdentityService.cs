@@ -42,7 +42,7 @@ internal sealed class IdentityService : IIdentityService
         return user.Id;
     }
 
-    public async Task<string?> ValidateCredentialsAndGetUserIdAsync(string email, string password, CancellationToken ct = default)
+    public async Task<string?> SignInAsync(string email, string password, CancellationToken ct = default)
     {
         var normalized = _userManager.NormalizeEmail(email);
         var user = await _userManager.Users

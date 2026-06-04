@@ -5,14 +5,14 @@ using Saldoa.API.Infrastructure.Persistence;
 
 namespace Saldoa.API.Auth;
 
-public class RefreshTokenRepository(SaldoaDbContext db) : IRefreshTokenRepository
+public class RefreshTokenRepository(SaldoaDbContext dbContext) : IRefreshTokenRepository
 {
-    public Task AddAsync(RefreshToken token, CancellationToken ct = default)
-        => db.Set<RefreshToken>().AddAsync(token, ct).AsTask();
+    public Task AddAsync(RefreshToken refreshToken, CancellationToken ct = default)
+        => dbContext.Set<RefreshToken>().AddAsync(refreshToken, ct).AsTask();
 
     public Task<RefreshToken?> GetByHashAsync(string tokenHash, CancellationToken ct = default)
-        => db.Set<RefreshToken>().SingleOrDefaultAsync(x => x.TokenHash == tokenHash, ct);
+        => dbContext.Set<RefreshToken>().SingleOrDefaultAsync(x => x.TokenHash == tokenHash, ct);
 
     public Task SaveChangesAsync(CancellationToken ct = default)
-        => db.SaveChangesAsync(ct);
+        => dbContext.SaveChangesAsync(ct);
 }

@@ -28,7 +28,7 @@ public class LoginUseCase
     public async Task<Result<AuthResponse>> ExecuteAsync(LoginRequest request, CancellationToken ct)
     {
         var userId = await _identityService
-            .ValidateCredentialsAndGetUserIdAsync(request.Email, request.Password, ct);
+            .SignInAsync(request.Email, request.Password, ct);
        
         if (userId is null)
         {

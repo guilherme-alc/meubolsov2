@@ -63,10 +63,22 @@ public static class ServiceCollectionExtensions
         return builder;
     }
     
-    public static WebApplicationBuilder AddSecurity(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder AddAuth(this WebApplicationBuilder builder)
     {
         builder.Services.Configure<JwtOptions>(
             builder.Configuration.GetSection(JwtOptions.SectionName));
+
+        builder.Services.AddIdentityCore<ApplicationUser>(options =>
+        {
+            options.Password.RequiredLength = 8;
+            options.Password.RequireDigit = true;
+            options.Password.RequireLowercase = true;
+            options.Password.RequireUppercase = true;
+            options.Password.RequireNonAlphanumeric = true;
+            options.User.RequireUniqueEmail = true;
+        })
+        .AddEntityFrameworkStores<SaldoaDbContext>()
+        .AddDefaultTokenProviders();
 
         builder.Services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -97,6 +109,11 @@ public static class ServiceCollectionExtensions
                 .Build();
         });
 
+        builder.Services.AddScoped<IJwtProvider, JwtProvider>();
+        builder.Services.AddScoped<IIdentityService, IdentityService>();
+        builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+        builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
         return builder;
     }
 
@@ -107,24 +124,7 @@ public static class ServiceCollectionExtensions
             opts.UseNpgsql(
                 builder.Configuration.GetConnectionString("DefaultConnection")));
 
-        builder.Services.AddIdentityCore<ApplicationUser>(options =>
-        {
-            options.Password.RequiredLength = 8;
-            options.Password.RequireDigit = true;
-            options.Password.RequireLowercase = true;
-            options.Password.RequireUppercase = true;
-            options.Password.RequireNonAlphanumeric = true;
-            options.User.RequireUniqueEmail = true;
-        })
-        .AddRoles<IdentityRole>()
-        .AddEntityFrameworkStores<SaldoaDbContext>()
-        .AddDefaultTokenProviders();
-
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-        builder.Services.AddScoped<IJwtProvider, JwtProvider>();
-        builder.Services.AddScoped<IIdentityService, IdentityService>();
-        builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
-        builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
         builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
         builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();

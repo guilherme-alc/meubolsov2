@@ -8,7 +8,6 @@ public class LogoutEndpoint
     {
         group.MapPost("/logout", 
             async Task<IResult> (
-                HttpRequest http,
                 LogoutRequest request,
                 LogoutUseCase useCase,
                 CancellationToken ct) =>
