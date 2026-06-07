@@ -59,6 +59,8 @@ namespace Saldoa.API.Infrastructure.Persistence.Configurations
 
                 i.Property(ii => ii.InstallmentGroupId)
                     .HasColumnName("installment_group_id");
+
+                i.HasIndex(ii => ii.InstallmentGroupId);
             });
 
             builder.Property(t => t.UserId)
@@ -79,10 +81,13 @@ namespace Saldoa.API.Infrastructure.Persistence.Configurations
                 .WithMany()
                 .HasForeignKey(t => t.CategoryId)
                 .HasConstraintName("fk_transactions_category")
-                .OnDelete(DeleteBehavior.Restrict);
-            
-            builder.HasIndex(t => t.UserId)
-                .HasDatabaseName("ix_transactions_user");
+                .OnDelete(DeleteBehavior.Restrict);    
+
+            builder.HasIndex(t => new
+            {
+                t.UserId,
+                t.PaidOrReceivedAt
+            });
         }
     }
 }
