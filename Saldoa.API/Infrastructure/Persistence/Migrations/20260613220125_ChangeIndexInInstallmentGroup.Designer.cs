@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Saldoa.API.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using Saldoa.API.Infrastructure.Persistence;
 namespace Saldoa.API.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SaldoaDbContext))]
-    partial class SaldoaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260613220125_ChangeIndexInInstallmentGroup")]
+    partial class ChangeIndexInInstallmentGroup
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

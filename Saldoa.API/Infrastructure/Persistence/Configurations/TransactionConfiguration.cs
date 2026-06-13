@@ -60,7 +60,8 @@ namespace Saldoa.API.Infrastructure.Persistence.Configurations
                 i.Property(ii => ii.InstallmentGroupId)
                     .HasColumnName("installment_group_id");
 
-                i.HasIndex(ii => ii.InstallmentGroupId);
+                i.HasIndex(ii => ii.InstallmentGroupId)
+                .HasFilter("installment_group_id IS NOT NULL");
             });
 
             builder.Property(t => t.UserId)
