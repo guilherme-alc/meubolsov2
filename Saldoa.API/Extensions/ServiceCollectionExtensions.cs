@@ -1,35 +1,23 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Saldoa.API.Auth;
-using Saldoa.API.Identity;
-using Saldoa.API.Infrastructure.Persistence;
-using Saldoa.API.Infrastructure.Persistence.Repositories;
 using Saldoa.API.OpenApi;
-using Saldoa.Application.Auth.Abstractions;
 using Saldoa.Application.Auth.Login;
 using Saldoa.Application.Auth.Logout;
 using Saldoa.Application.Auth.Refresh;
 using Saldoa.Application.Auth.Register;
-using Saldoa.Application.Categories.Abstractions;
 using Saldoa.Application.Categories.Create;
 using Saldoa.Application.Categories.Delete;
 using Saldoa.Application.Categories.GetById;
 using Saldoa.Application.Categories.List;
 using Saldoa.Application.Categories.Update;
-using Saldoa.Application.CategoryBudgets.Abstractions;
 using Saldoa.Application.CategoryBudgets.Create;
 using Saldoa.Application.CategoryBudgets.Delete;
 using Saldoa.Application.CategoryBudgets.GetCategoryBudgetByCategory;
 using Saldoa.Application.CategoryBudgets.GetCategoryBudgetById;
 using Saldoa.Application.CategoryBudgets.ListCategoryBudgets;
 using Saldoa.Application.CategoryBudgets.Update;
-using Saldoa.Application.Common.Abstractions;
-using Saldoa.Application.Identity.Abstractions;
-using Saldoa.Application.Transactions.Abstractions;
 using Saldoa.Application.Transactions.Common;
 using Saldoa.Application.Transactions.Create;
 using Saldoa.Application.Transactions.Delete;
@@ -38,6 +26,8 @@ using Saldoa.Application.Transactions.ListByCategory;
 using Saldoa.Application.Transactions.ListByMonth;
 using Saldoa.Application.Transactions.ListByPeriod;
 using Saldoa.Application.Transactions.Update;
+using Saldoa.Infrastructure;
+using Saldoa.Infrastructure.Auth;
 using System.Text;
 
 namespace Saldoa.API.Extensions;
@@ -68,31 +58,19 @@ public static class ServiceCollectionExtensions
         builder.Services.Configure<JwtOptions>(
             builder.Configuration.GetSection(JwtOptions.SectionName));
 
-        builder.Services.AddSaldoaIdentity();
         builder.Services.AddJwtAuthentication(builder.Configuration);
         builder.Services.AddAuthenticatedUserFallbackPolicy();
-        builder.Services.AddAuthServices();
 
         return builder;
     }
 
-    
     public static WebApplicationBuilder AddInfrastructure(this WebApplicationBuilder builder)
     {
-        builder.Services.AddDbContext<SaldoaDbContext>(opts =>
-            opts.UseNpgsql(
-                builder.Configuration.GetConnectionString("DefaultConnection")));
-
-        builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-        builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-        builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
-        builder.Services.AddScoped<ICategoryBudgetRepository, CategoryBudgetRepository>();
+        builder.Services.AddInfrastructure(builder.Configuration);
 
         return builder;
     }
 
-    
     public static WebApplicationBuilder AddApplication(this WebApplicationBuilder builder)
     {
         builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
@@ -127,23 +105,6 @@ public static class ServiceCollectionExtensions
         return builder;
     }
 
-    private static IServiceCollection AddSaldoaIdentity(this IServiceCollection services)
-    {
-        services.AddIdentityCore<ApplicationUser>(options =>
-        {
-            options.Password.RequiredLength = 8;
-            options.Password.RequireDigit = true;
-            options.Password.RequireLowercase = true;
-            options.Password.RequireUppercase = true;
-            options.Password.RequireNonAlphanumeric = true;
-            options.User.RequireUniqueEmail = true;
-        })
-        .AddEntityFrameworkStores<SaldoaDbContext>()
-        .AddDefaultTokenProviders();
-
-        return services;
-    }
-
     private static IServiceCollection AddJwtAuthentication(
         this IServiceCollection services,
         IConfiguration configuration)
@@ -175,22 +136,10 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddAuthenticatedUserFallbackPolicy(this IServiceCollection services)
     {
-        services.AddAuthorization(options =>
-        {
-            options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        services.AddAuthorizationBuilder()
+            .SetFallbackPolicy(new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
-                .Build();
-        });
-
-        return services;
-    }
-
-    private static IServiceCollection AddAuthServices(this IServiceCollection services)
-    {
-        services.AddScoped<IJwtProvider, JwtProvider>();
-        services.AddScoped<IIdentityService, IdentityService>();
-        services.AddScoped<IRefreshTokenGenerator, RefreshTokenGenerator>();
-        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+                .Build());
 
         return services;
     }

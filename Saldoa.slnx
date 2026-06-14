@@ -2,4 +2,5 @@
   <Project Path="Saldoa.API\Saldoa.API.csproj" />
   <Project Path="Saldoa.Application\Saldoa.Application.csproj" Id="2c12b0bc-1532-4b95-bd99-160e75f063a0" />
   <Project Path="Saldoa.Domain\Saldoa.Domain.csproj" />
+  <Project Path="Saldoa.Infrastructure/Saldoa.Infrastructure.csproj" Id="54a18a03-82a5-43a1-91f1-c5c35cb5f639" />
 </Solution>

@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Npgsql;
+using Saldoa.Application.Common.Exceptions;
 using Saldoa.Domain.Exceptions;
 
 namespace Saldoa.API.Middlewares;
@@ -34,30 +33,6 @@ public class ExceptionHandlingMiddleware
             if (!context.Response.HasStarted)
                 context.Response.StatusCode = 499;
         }
-        catch (DbUpdateConcurrencyException ex)
-        {
-            _logger.LogWarning(ex, "Conflito de concorrência ao persistir dados");
-
-            await WriteProblemAsync(
-                context,
-                StatusCodes.Status409Conflict,
-                title: "Database.ConcurrencyConflict",
-                detail: IsDevelopment
-                    ? $"Conflito de concorrência. Tente novamente: {ex.Message}"
-                    : "Conflito de concorrência. Tente novamente."
-            );
-        }
-        catch (DbUpdateException ex) when (TryMapDbUpdate(ex, out var statusCode, out var title, out var detail))
-        {
-            _logger.LogError(ex, "Erro ao persistir dados");
-
-            await WriteProblemAsync(
-                context,
-                statusCode,
-                title,
-                IsDevelopment ? $"{detail} {ex.Message}" : detail
-            );
-        }
         catch (DomainException ex)
         {
             _logger.LogWarning(ex, "Violação de regra de domínio");
@@ -66,6 +41,17 @@ public class ExceptionHandlingMiddleware
                     context,
                     StatusCodes.Status400BadRequest,
                     title: "Domain.ValidationError",
+                    detail: ex.Message
+            );
+        }
+        catch (PersistenceConflictException ex)
+        {
+            _logger.LogWarning(ex, "Conflito ao persistir dados");
+
+            await WriteProblemAsync(
+                    context,
+                    StatusCodes.Status409Conflict,
+                    title: "Persistence.Conflict",
                     detail: ex.Message
             );
         }
@@ -104,36 +90,5 @@ public class ExceptionHandlingMiddleware
         };
 
         await context.Response.WriteAsJsonAsync(problem);
-    }
-
-    private static bool TryMapDbUpdate(
-        DbUpdateException ex,
-        out int statusCode,
-        out string title,
-        out string detail)
-    {
-        if (ex.InnerException is PostgresException pg)
-        {
-            if (pg.SqlState == PostgresErrorCodes.UniqueViolation)
-            {
-                statusCode = StatusCodes.Status409Conflict;
-                title = "Database.UniqueViolation";
-                detail = "Já existe um registro com esses dados.";
-                return true;
-            }
-
-            if (pg.SqlState == PostgresErrorCodes.ForeignKeyViolation)
-            {
-                statusCode = StatusCodes.Status409Conflict;
-                title = "Database.ForeignKeyViolation";
-                detail = "Não foi possível concluir por vínculo com outro registro.";
-                return true;
-            }
-        }
-
-        statusCode = 0;
-        title = "";
-        detail = "";
-        return false;
     }
 }
