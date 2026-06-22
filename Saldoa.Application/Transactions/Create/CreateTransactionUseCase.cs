@@ -27,14 +27,14 @@ public class CreateTransactionUseCase
         _transactionBudgetAnalyzer = transactionBudgetAnalyzer;
     }
 
-    public async Task<Result<TransactionsResponse>> ExecuteAsync(CreateTransactionRequest request, string userId, CancellationToken ct)
+    public async Task<Result<CreateTransactionsResponse>> ExecuteAsync(CreateTransactionRequest request, string userId, CancellationToken ct)
     {
         var category = await _categoryRepository.GetByIdAsync(request.CategoryId, userId, ct);
         
         if(category == null)
         {
             var error = CategoryErrors.NotFound;
-            return Result<TransactionsResponse>.Failure(error);
+            return Result<CreateTransactionsResponse>.Failure(error);
         }
 
         List<BudgetAlert> budgetAlerts = [];
@@ -83,7 +83,7 @@ public class CreateTransactionUseCase
             )
         ).ToList();
 
-        return Result<TransactionsResponse>.Success(new TransactionsResponse(
+        return Result<CreateTransactionsResponse>.Success(new CreateTransactionsResponse(
             response,
             budgetAlerts.Count == 0 ? null : budgetAlerts
         ));
