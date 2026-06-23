@@ -14,5 +14,6 @@ public static class TransactionsEndpoints
         ListTransactionsByPeriodEndpoint.Map(group);
         ListTransactionsByMonthEndpoint.Map(group);
         ListTransactionsByCategoryEndpoint.Map(group);
+        GetInstallmentsByGroupIdEndpoint.Map(group);
     }
 }
