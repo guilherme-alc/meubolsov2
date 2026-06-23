@@ -1,7 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using Saldoa.Application.Common.Pagination;
 using Saldoa.Application.Transactions.Abstractions;
+using Saldoa.Application.Transactions.Common;
+using Saldoa.Application.Transactions.GetInstallmentsByGroupId;
 using Saldoa.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
 using Saldoa.Domain.Enums;
 
 namespace Saldoa.Infrastructure.Persistence.Repositories;
@@ -91,7 +93,8 @@ public class TransactionRepository(SaldoaDbContext dbContext) : ITransactionRepo
             .Where(t => t.UserId == userId &&
                         t.PaidOrReceivedAt >= startDate &&
                         t.PaidOrReceivedAt <= endDate &&
-                        t.CategoryId == categoryId);
+                        t.CategoryId == categoryId
+            );
 
         var total = await query.CountAsync(ct);
 
@@ -158,5 +161,63 @@ public class TransactionRepository(SaldoaDbContext dbContext) : ITransactionRepo
         return await dbContext.Transactions
              .Where(t => t.InstallmentInfo.InstallmentGroupId == installmentGroupId && t.UserId == userId)
              .ToListAsync(ct);
+    }
+
+    public async Task<PagedResult<Transaction>> GetInstallmentsByGroupIdAsync(Guid installmentGroupId, string userId, int pageNumber, int pageSize, CancellationToken ct)
+    {
+        var query = dbContext.Transactions
+            .AsNoTracking()
+            .Where(t => t.InstallmentInfo.InstallmentGroupId == installmentGroupId && t.UserId == userId);
+
+        var total = await query.CountAsync(ct);
+
+        var data = await query
+            .OrderBy(t => t.InstallmentInfo.InstallmentNumber)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(ct);
+
+        return new PagedResult<Transaction>(data, total, pageNumber, pageSize);
+    }
+
+    public async Task<InstallmentGroupHeader?> GetInstallmentGroupHeaderAsync(Guid installmentGroupId, string userId, CancellationToken ct)
+    {
+
+        var query = dbContext.Transactions
+            .AsNoTracking()
+            .Where(t => t.InstallmentInfo.InstallmentGroupId == installmentGroupId && 
+                t.UserId == userId);
+
+        var header = await query
+            .Include(t => t.Category)
+            .OrderBy(t => t.InstallmentInfo.InstallmentNumber)
+            .Select(t => new
+            {
+                t.Title,
+                t.Description,
+                t.Type,
+                t.InstallmentInfo.TotalInstallments,
+                Category = new CategorySummaryResponse(
+                    t.Category.Id,
+                    t.Category.Name,
+                    t.Category.Color
+                )
+            })
+            .FirstOrDefaultAsync(ct);
+
+        if (header is null)
+            return null;
+
+        var totalAmount = await query.SumAsync(t => t.Amount, ct);
+
+        return new InstallmentGroupHeader(
+            installmentGroupId,
+            header.Title,
+            header.Description,
+            header.Type,
+            totalAmount,
+            header.TotalInstallments,
+            header.Category
+        );
     }
 }

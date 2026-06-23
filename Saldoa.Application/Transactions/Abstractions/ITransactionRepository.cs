@@ -1,4 +1,5 @@
 using Saldoa.Application.Common.Pagination;
+using Saldoa.Application.Transactions.GetInstallmentsByGroupId;
 using Saldoa.Domain.Entities;
 using Saldoa.Domain.Enums;
 
@@ -14,6 +15,8 @@ public interface ITransactionRepository
     Task<Transaction?> GetByIdForUpdateAsync(long id, string userId, CancellationToken ct);
     Task<Transaction?> GetByIdWithCategoryAsync(long id, string userId, CancellationToken ct);
     Task<List<Transaction>?> GetInstallmentsForUpdateAsync(Guid installmentGroupId, string userId, CancellationToken ct);
+    Task<InstallmentGroupHeader?> GetInstallmentGroupHeaderAsync(Guid installmentGroupId, string userId, CancellationToken ct);
+    Task<PagedResult<Transaction>> GetInstallmentsByGroupIdAsync(Guid installmentGroupId, string userId, int pageNumber, int pageSize, CancellationToken ct);
     Task<PagedResult<Transaction>> ListByPeriodAsync(string userId, DateOnly startDate, DateOnly endDate, TransactionType? type, int pageNumber, int pageSize, CancellationToken ct);
     Task<PagedResult<Transaction>> ListByCategoryAsync(string userId, DateOnly startDate, DateOnly endDate, long categoryId, int pageNumber, int pageSize, CancellationToken ct);
     Task<decimal> GetTotalForPeriodAsync(string userId, long categoryId, DateOnly start, DateOnly end, CancellationToken ct, TransactionType? type = TransactionType.Expense);

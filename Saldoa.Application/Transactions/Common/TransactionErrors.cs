@@ -7,6 +7,6 @@ namespace Saldoa.Application.Transactions.Common
         public static Error NotFound =>
             new("Transaction.NotFound", "Transação não encontrada", ErrorType.NotFound);
         public static Error InstallmentNotFound =>
-            new("Transaction.NotFound", "Parcela não encontrada", ErrorType.NotFound);
+            new("Transaction.NotFound", "Parcela(s) não encontrada(s)", ErrorType.NotFound);
     }
 }
