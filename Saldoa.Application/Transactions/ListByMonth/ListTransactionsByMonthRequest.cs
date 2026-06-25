@@ -6,5 +6,6 @@ public record ListTransactionsByMonthRequest(
     int Year, 
     int Month, 
     TransactionType? Type, 
+    long CategoryId,
     int PageNumber = 1, 
     int PageSize = 20);

@@ -60,6 +60,7 @@ public class TransactionRepository(SaldoaDbContext dbContext) : ITransactionRepo
         DateOnly startDate,
         DateOnly endDate,
         TransactionType? type,
+        long? categoryId,
         int pageNumber,
         int pageSize,
         CancellationToken ct = default)
@@ -69,32 +70,17 @@ public class TransactionRepository(SaldoaDbContext dbContext) : ITransactionRepo
             .AsNoTracking()
             .Where(t => t.UserId == userId &&
                         t.PaidOrReceivedAt >= startDate &&
-                        t.PaidOrReceivedAt <= endDate &&
-                        (type == null || t.Type == type));
+                        t.PaidOrReceivedAt <= endDate);
 
-        var total = await query.CountAsync(ct);
+        if (type != null)
+        {
+            query = query.Where(t => t.Type == type);
+        }
 
-        var data = await query
-            .Include(t => t.Category)
-            .OrderByDescending(t => t.PaidOrReceivedAt)
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync(ct);
-
-        return new PagedResult<Transaction>(data, total, pageNumber, pageSize);
-    }
-
-    public async Task<PagedResult<Transaction>> ListByCategoryAsync(string userId, DateOnly startDate, DateOnly endDate,
-        long categoryId, int pageNumber, int pageSize, CancellationToken ct)
-    {
-        var query = dbContext
-            .Transactions
-            .AsNoTracking()
-            .Where(t => t.UserId == userId &&
-                        t.PaidOrReceivedAt >= startDate &&
-                        t.PaidOrReceivedAt <= endDate &&
-                        t.CategoryId == categoryId
-            );
+        if (categoryId != null)
+        {
+            query = query.Where(t => t.CategoryId == categoryId);
+        }
 
         var total = await query.CountAsync(ct);
 

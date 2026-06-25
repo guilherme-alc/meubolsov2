@@ -24,6 +24,7 @@ public class ListTransactionsByMonthUseCase
             startDate, 
             endDate,
             request.Type,
+            request.CategoryId,
             request.PageNumber, 
             request.PageSize, 
             ct);

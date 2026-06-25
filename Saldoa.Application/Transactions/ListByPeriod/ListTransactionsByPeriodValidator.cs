@@ -19,6 +19,13 @@ public class ListTransactionsByPeriodValidator : AbstractValidator<ListTransacti
                 !x.EndDate.HasValue ||
                 x.EndDate >= x.StartDate)
             .WithMessage("A data final não pode ser menor que a data inicial.");
+
+        When(x => x.CategoryId is not null, () =>
+        {
+            RuleFor(x => x.CategoryId)
+                .GreaterThan(0)
+                .WithMessage("Id da categoria inválido");
+        });
         
         When(x => x.Type is not null, () =>
         {
