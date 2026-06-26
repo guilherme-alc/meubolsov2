@@ -1,4 +1,5 @@
 using FluentValidation;
+using System.Globalization;
 
 namespace Saldoa.Application.Transactions.ListByPeriod;
 
@@ -33,5 +34,27 @@ public class ListTransactionsByPeriodValidator : AbstractValidator<ListTransacti
                 .IsInEnum()
                 .WithMessage("Tipo da transação inválido.");
         });
+
+        When(x => x.YearMonth is not null, () =>
+        {
+            RuleFor(x => x.YearMonth)
+                .Must(BeValidMonth)
+                .WithMessage("O parâmetro month deve estar no formato yyyy-MM. Exemplo: 2026-06");
+        });
+
+        RuleFor(x => x)
+            .Must(x => string.IsNullOrWhiteSpace(x.YearMonth) ||
+                       (!x.StartDate.HasValue && !x.EndDate.HasValue))
+            .WithMessage("Use YearMonth ou StartDate/EndDate, não ambos.");
+    }
+
+    private static bool BeValidMonth(string? month)
+    {
+        return DateOnly.TryParseExact(
+            month + "-01",
+            "yyyy-MM-dd",
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.None,
+            out _);
     }
 }

@@ -23,7 +23,6 @@ using Saldoa.Application.Transactions.Create;
 using Saldoa.Application.Transactions.Delete;
 using Saldoa.Application.Transactions.GetById;
 using Saldoa.Application.Transactions.GetInstallmentsByGroupId;
-using Saldoa.Application.Transactions.ListByMonth;
 using Saldoa.Application.Transactions.ListByPeriod;
 using Saldoa.Application.Transactions.Update;
 using Saldoa.Infrastructure;
@@ -92,7 +91,6 @@ public static class ServiceCollectionExtensions
         builder.Services.AddScoped<UpdateTransactionUseCase>();
         builder.Services.AddScoped<DeleteTransactionUseCase>();
         builder.Services.AddScoped<ListTransactionsByPeriodUseCase>();
-        builder.Services.AddScoped<ListTransactionsByMonthUseCase>();
         builder.Services.AddScoped<GetInstallmentsByGroupIdUseCase>();
         
         builder.Services.AddScoped<CreateCategoryBudgetUseCase>();
