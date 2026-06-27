@@ -8,5 +8,7 @@ public sealed record ListTransactionsByPeriodRequest(
     DateOnly? StartDate,
     DateOnly? EndDate,
     long? CategoryId,
-    TransactionType? Type)
-    : PaginatedRequest;
+    TransactionType? Type,
+    int PageNumber = PaginationDefaults.PageNumber,
+    int PageSize = PaginationDefaults.PageSize)
+    : IPaginatedRequest;
