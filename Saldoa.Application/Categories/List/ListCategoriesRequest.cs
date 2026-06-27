@@ -1,3 +1,5 @@
+using Saldoa.Application.Common.Pagination;
+
 namespace Saldoa.Application.Categories.List;
 
-public sealed record ListCategoriesRequest(int PageNumber = 1, int PageSize = 20);
+public sealed record ListCategoriesRequest() : PaginatedRequest;

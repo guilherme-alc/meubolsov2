@@ -1,4 +1,5 @@
 using FluentValidation;
+using Saldoa.Application.Common.Pagination;
 
 namespace Saldoa.Application.CategoryBudgets.ListCategoryBudgets;
 
@@ -6,13 +7,8 @@ public class ListCategoryBudgetsValidator : AbstractValidator<ListCategoryBudget
 {
     public ListCategoryBudgetsValidator()
     {
-        RuleFor(x => x.PageNumber)
-            .GreaterThanOrEqualTo(1);
+        this.AddPaginationRules();
 
-        RuleFor(x => x.PageSize)
-            .GreaterThanOrEqualTo(1)
-            .LessThanOrEqualTo(100);
-        
         RuleFor(x => x.EndDate)
             .GreaterThanOrEqualTo(x => x.StartDate)
             .When(x => x.StartDate.HasValue && x.EndDate.HasValue)

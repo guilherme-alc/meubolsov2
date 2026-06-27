@@ -1,4 +1,5 @@
 using FluentValidation;
+using Saldoa.Application.Common.Pagination;
 
 namespace Saldoa.Application.Categories.List;
 
@@ -6,11 +7,6 @@ public sealed class ListCategoriesValidator : AbstractValidator<ListCategoriesRe
 {
     public ListCategoriesValidator()
     {
-        RuleFor(x => x.PageNumber)
-            .GreaterThanOrEqualTo(1);
-
-        RuleFor(x => x.PageSize)
-            .GreaterThanOrEqualTo(1)
-            .LessThanOrEqualTo(100);
+        this.AddPaginationRules();
     }
 }

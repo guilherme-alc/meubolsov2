@@ -1,4 +1,6 @@
-﻿namespace Saldoa.Application.Transactions.GetInstallmentsByGroupId
+﻿using Saldoa.Application.Common.Pagination;
+
+namespace Saldoa.Application.Transactions.GetInstallmentsByGroupId
 {
-    public sealed record GetInstallmentsByGroupIdRequest(int PageNumber = 1, int PageSize = 20);
+    public sealed record GetInstallmentsByGroupIdRequest() : PaginatedRequest;
 }

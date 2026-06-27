@@ -1,4 +1,5 @@
 using FluentValidation;
+using Saldoa.Application.Common.Pagination;
 using System.Globalization;
 
 namespace Saldoa.Application.Transactions.ListByPeriod;
@@ -7,13 +8,8 @@ public class ListTransactionsByPeriodValidator : AbstractValidator<ListTransacti
 {
     public ListTransactionsByPeriodValidator()
     {
-        RuleFor(x => x.PageNumber)
-            .GreaterThanOrEqualTo(1);
+        this.AddPaginationRules();
 
-        RuleFor(x => x.PageSize)
-            .GreaterThanOrEqualTo(1)
-            .LessThanOrEqualTo(100);
-        
         RuleFor(x => x)
             .Must(x =>
                 !x.StartDate.HasValue ||
