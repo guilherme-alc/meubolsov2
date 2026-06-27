@@ -44,5 +44,14 @@ public class UnitOfWork : IUnitOfWork
             throw new PersistenceConflictException(
                 "Não foi possível concluir por vínculo com outro registro.", ex);
         }
+        catch (DbUpdateException ex) when (
+        ex.InnerException is PostgresException
+            {
+                SqlState: PostgresErrorCodes.ExclusionViolation
+            })
+        {
+            throw new PersistenceConflictException(
+                "Já existe um limite para essa categoria no período informado.", ex);
+        }
     }
 }
