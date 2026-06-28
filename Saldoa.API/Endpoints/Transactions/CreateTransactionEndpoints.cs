@@ -8,9 +8,9 @@ namespace Saldoa.API.Endpoints.Transactions;
 
 public static class CreateTransactionEndpoints
 {
-    public static void Map(RouteGroupBuilder group)
+    public static void Map(RouteGroupBuilder transactionsGroup)
     {
-        group.MapPost("/", 
+        transactionsGroup.MapPost("/", 
             async Task<IResult> (
                 CreateTransactionRequest request,
                 CreateTransactionUseCase useCase,

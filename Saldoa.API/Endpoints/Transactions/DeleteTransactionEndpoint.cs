@@ -7,9 +7,9 @@ namespace Saldoa.API.Endpoints.Transactions;
 
 public static class DeleteTransactionEndpoint
 {
-    public static void Map(RouteGroupBuilder group)
+    public static void Map(RouteGroupBuilder transactionsGroup)
     {
-        group.MapDelete("/{id:long}", 
+        transactionsGroup.MapDelete("/{id:long}", 
             async Task<IResult> (
                 long id,
                 DeleteTransactionUseCase useCase,

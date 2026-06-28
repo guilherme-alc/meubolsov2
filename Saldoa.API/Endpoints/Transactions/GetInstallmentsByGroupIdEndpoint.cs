@@ -8,9 +8,9 @@ namespace Saldoa.API.Endpoints.Transactions;
 
 public static class GetInstallmentsByGroupIdEndpoint
 {
-    public static void Map(RouteGroupBuilder group)
+    public static void Map(RouteGroupBuilder transactionsGroup)
     {
-        group.MapGet("/installment-groups/{installmentGroupId:guid}", 
+        transactionsGroup.MapGet("/installment-groups/{installmentGroupId:guid}", 
             async Task<IResult> (
                 Guid installmentGroupId,
                 [AsParameters] GetInstallmentsByGroupIdRequest request,

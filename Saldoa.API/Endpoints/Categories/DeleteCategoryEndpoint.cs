@@ -7,9 +7,9 @@ namespace Saldoa.API.Endpoints.Categories;
 
 public static class DeleteCategoryEndpoint
 {
-    public static void Map(RouteGroupBuilder group)
+    public static void Map(RouteGroupBuilder categoriesGroup)
     {
-        group.MapDelete("/{id:long:min(1)}", 
+        categoriesGroup.MapDelete("/{id:long:min(1)}", 
             async Task<IResult> (
                 long id,
                 DeleteCategoryUseCase useCase,

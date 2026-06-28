@@ -7,9 +7,9 @@ namespace Saldoa.API.Endpoints.Categories;
 
 public static class ListCategoriesEndpoint
 {
-    public static void Map(RouteGroupBuilder group)
+    public static void Map(RouteGroupBuilder categoriesGroup)
     {
-        group.MapGet("/", 
+        categoriesGroup.MapGet("/", 
             async Task<IResult> (
                 [AsParameters] ListCategoriesRequest request,
                 IValidator<ListCategoriesRequest> validator,

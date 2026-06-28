@@ -7,9 +7,9 @@ namespace Saldoa.API.Endpoints.Transactions;
 
 public static class GetTransactionByIdEndpoint
 {
-    public static void Map(RouteGroupBuilder group)
+    public static void Map(RouteGroupBuilder transactionsGroup)
     {
-        group.MapGet("/{id:long}", 
+        transactionsGroup.MapGet("/{id:long}", 
             async Task<IResult> (
                 long id,
                 GetTransactionByIdUseCase useCase,

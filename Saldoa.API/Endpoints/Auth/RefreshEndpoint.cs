@@ -5,9 +5,9 @@ namespace Saldoa.API.Endpoints.Auth;
 
 public static class RefreshEndpoint
 {
-    public static void Map(RouteGroupBuilder group)
+    public static void Map(RouteGroupBuilder authGroup)
     {
-        group.MapPost("/refresh", 
+        authGroup.MapPost("/refresh", 
             async Task<IResult> (
                 RefreshRequest request,
                 RefreshUseCase useCase,

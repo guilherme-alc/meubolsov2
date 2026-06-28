@@ -8,9 +8,9 @@ namespace Saldoa.API.Endpoints.CategoryBudgets;
 
 public static class CreateCategoryBudgetEndpoint
 {
-    public static void Map(RouteGroupBuilder group)
+    public static void Map(RouteGroupBuilder categoryBudgetsGroup)
     {
-        group.MapPost("/", 
+        categoryBudgetsGroup.MapPost("/", 
             async Task<IResult> (
                 CreateCategoryBudgetRequest request,
                 IValidator<CreateCategoryBudgetRequest> validator,

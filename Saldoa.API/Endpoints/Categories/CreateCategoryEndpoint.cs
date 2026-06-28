@@ -8,9 +8,9 @@ namespace Saldoa.API.Endpoints.Categories;
 
 public static class CreateCategoryEndpoint
 {
-    public static void Map(RouteGroupBuilder group)
+    public static void Map(RouteGroupBuilder categoriesGroup)
     {
-        group.MapPost("/", 
+        categoriesGroup.MapPost("/", 
             async Task<IResult>(
                 CreateCategoryRequest request,
                 CreateCategoryUseCase useCase,

@@ -8,9 +8,9 @@ namespace Saldoa.API.Endpoints.Transactions;
 
 public static class UpdateTransactionEndpoint
 {
-    public static void Map(RouteGroupBuilder group)
+    public static void Map(RouteGroupBuilder transactionsGroup)
     {
-        group.MapPut("/{id:long}", 
+        transactionsGroup.MapPut("/{id:long}", 
             async Task<IResult> (
                 long id,
                 UpdateTransactionRequest request,

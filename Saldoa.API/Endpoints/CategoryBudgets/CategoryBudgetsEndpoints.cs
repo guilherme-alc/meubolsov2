@@ -4,14 +4,14 @@ public static class CategoryBudgetsEndpoints
 {
     public static void MapCategoryBudgetEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/category-budgets")
+        var categoryBudgetsGroup = app.MapGroup("/category-budgets")
             .WithTags("Category Budgets");
 
-        CreateCategoryBudgetEndpoint.Map(group);
-        ListCategoryBudgetsEndpoint.Map(group);
-        DeleteCategoryBudgetEndpoint.Map(group);
-        GetCategoryBudgetByIdEndpoint.Map(group);
-        UpdateCategoryBudgetEndpoint.Map(group);
-        GetCategoryBudgetsByCategoryEndpoint.Map(group);
+        CreateCategoryBudgetEndpoint.Map(categoryBudgetsGroup);
+        ListCategoryBudgetsEndpoint.Map(categoryBudgetsGroup);
+        DeleteCategoryBudgetEndpoint.Map(categoryBudgetsGroup);
+        GetCategoryBudgetByIdEndpoint.Map(categoryBudgetsGroup);
+        UpdateCategoryBudgetEndpoint.Map(categoryBudgetsGroup);
+        GetCategoryBudgetsByCategoryEndpoint.Map(categoryBudgetsGroup);
     }
 }

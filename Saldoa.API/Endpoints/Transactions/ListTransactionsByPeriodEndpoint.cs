@@ -8,9 +8,9 @@ namespace Saldoa.API.Endpoints.Transactions;
 
 public static class ListTransactionsByPeriodEndpoint
 {
-    public static void Map(RouteGroupBuilder group)
+    public static void Map(RouteGroupBuilder transactionsGroup)
     {
-        group.MapGet("/", 
+        transactionsGroup.MapGet("/", 
             async Task<IResult> (
                 [AsParameters] ListTransactionsByPeriodRequest request,
                 IValidator<ListTransactionsByPeriodRequest> validator,

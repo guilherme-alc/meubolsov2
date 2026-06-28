@@ -6,9 +6,9 @@ namespace Saldoa.API.Endpoints.Auth;
 
 public static class LoginEndpoint
 {
-    public static void Map(RouteGroupBuilder group)
+    public static void Map(RouteGroupBuilder authGroup)
     {
-        group.MapPost("/login", 
+        authGroup.MapPost("/login", 
             async Task<IResult> (
                 LoginRequest request,
                 IValidator<LoginRequest> validator,

@@ -6,9 +6,9 @@ namespace Saldoa.API.Endpoints.Auth;
 
 public static class RegisterEndpoint
 {
-    public static void Map(RouteGroupBuilder group)
+    public static void Map(RouteGroupBuilder authGroup)
     {
-        group.MapPost("/register", 
+        authGroup.MapPost("/register", 
             async Task<IResult> (
                 RegisterRequest request,
                 IValidator<RegisterRequest> validator,

@@ -2,15 +2,15 @@ namespace Saldoa.API.Endpoints.Categories;
 
 public static class CategoriesEndpoints
 {
-    public static void MapCategoriesEndpoint(this IEndpointRouteBuilder app)
+    public static void MapCategoryEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/categories")
+        var categoriesGroup = app.MapGroup("/categories")
             .WithTags("Categories");
 
-        CreateCategoryEndpoint.Map(group);
-        UpdateCategoryEndpoint.Map(group);
-        GetCategoryByIdEndpoint.Map(group);
-        DeleteCategoryEndpoint.Map(group);
-        ListCategoriesEndpoint.Map(group);
+        CreateCategoryEndpoint.Map(categoriesGroup);
+        UpdateCategoryEndpoint.Map(categoriesGroup);
+        GetCategoryByIdEndpoint.Map(categoriesGroup);
+        DeleteCategoryEndpoint.Map(categoriesGroup);
+        ListCategoriesEndpoint.Map(categoriesGroup);
     }
 }

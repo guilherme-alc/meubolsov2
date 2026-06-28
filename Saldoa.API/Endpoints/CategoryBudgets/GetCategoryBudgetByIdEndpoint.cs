@@ -7,9 +7,9 @@ namespace Saldoa.API.Endpoints.CategoryBudgets;
 
 public static class GetCategoryBudgetByIdEndpoint
 {
-    public static void Map(RouteGroupBuilder group)
+    public static void Map(RouteGroupBuilder categoryBudgetsGroup)
     {
-        group.MapGet("/{id:long:min(1)}", 
+        categoryBudgetsGroup.MapGet("/{id:long:min(1)}", 
             async Task<IResult> (
                 long id,
                 GetCategoryBudgetByIdUseCase useCase,

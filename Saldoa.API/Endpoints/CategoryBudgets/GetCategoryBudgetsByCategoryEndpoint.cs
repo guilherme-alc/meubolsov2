@@ -8,9 +8,9 @@ namespace Saldoa.API.Endpoints.CategoryBudgets;
 
 public static class GetCategoryBudgetsByCategoryEndpoint
 {
-    public static void Map(RouteGroupBuilder group)
+    public static void Map(RouteGroupBuilder categoryBudgetsGroup)
     {
-        group.MapGet("/by-category/{categoryId:long:min(1)}", 
+        categoryBudgetsGroup.MapGet("/by-category/{categoryId:long:min(1)}", 
             async Task<IResult> (
                 long categoryId,
                 [AsParameters] GetCategoryBudgetsByCategoryRequest request,

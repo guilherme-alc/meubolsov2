@@ -2,15 +2,15 @@ namespace Saldoa.API.Endpoints.Auth;
 
 public static class AuthEndpoints
 {
-    public static void MapAuthEndpoints(this IEndpointRouteBuilder app)
+    public static void MapAuthEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var group = app.MapGroup("/auth")
+        var authGroup = endpoints.MapGroup("/auth")
             .WithTags("Auth")
             .AllowAnonymous();
         
-        RegisterEndpoint.Map(group);
-        LoginEndpoint.Map(group);
-        LogoutEndpoint.Map(group);
-        RefreshEndpoint.Map(group);
+        RegisterEndpoint.Map(authGroup);
+        LoginEndpoint.Map(authGroup);
+        LogoutEndpoint.Map(authGroup);
+        RefreshEndpoint.Map(authGroup);
     }
 }

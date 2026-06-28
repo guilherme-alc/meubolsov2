@@ -8,9 +8,9 @@ namespace Saldoa.API.Endpoints.Categories;
 
 public static class UpdateCategoryEndpoint
 {
-    public static void Map(RouteGroupBuilder group)
+    public static void Map(RouteGroupBuilder categoriesGroup)
     {
-        group.MapPut("/{id:long}", 
+        categoriesGroup.MapPut("/{id:long}", 
             async Task<IResult> (
                 long id,
                 UpdateCategoryRequest request,

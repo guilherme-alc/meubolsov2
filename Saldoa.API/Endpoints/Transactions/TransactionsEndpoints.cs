@@ -2,16 +2,16 @@ namespace Saldoa.API.Endpoints.Transactions;
 
 public static class TransactionsEndpoints
 {
-    public static void MapTransactionsEndpoint(this IEndpointRouteBuilder app)
+    public static void MapTransactionEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/transactions")
+        var transactionsGroup = app.MapGroup("/transactions")
             .WithTags("Transactions");
 
-        CreateTransactionEndpoints.Map(group);
-        GetTransactionByIdEndpoint.Map(group);
-        UpdateTransactionEndpoint.Map(group);
-        DeleteTransactionEndpoint.Map(group);
-        ListTransactionsByPeriodEndpoint.Map(group);
-        GetInstallmentsByGroupIdEndpoint.Map(group);
+        CreateTransactionEndpoints.Map(transactionsGroup);
+        GetTransactionByIdEndpoint.Map(transactionsGroup);
+        UpdateTransactionEndpoint.Map(transactionsGroup);
+        DeleteTransactionEndpoint.Map(transactionsGroup);
+        ListTransactionsByPeriodEndpoint.Map(transactionsGroup);
+        GetInstallmentsByGroupIdEndpoint.Map(transactionsGroup);
     }
 }
