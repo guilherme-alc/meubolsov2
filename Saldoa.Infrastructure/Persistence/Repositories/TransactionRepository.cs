@@ -100,7 +100,7 @@ public class TransactionRepository(SaldoaDbContext dbContext) : ITransactionRepo
         DateOnly start,
         DateOnly end,
         CancellationToken ct,
-        TransactionType? type = TransactionType.Expense)
+        TransactionType type = TransactionType.Expense)
     {
         return await dbContext.Transactions
             .Where(t =>
@@ -112,16 +112,42 @@ public class TransactionRepository(SaldoaDbContext dbContext) : ITransactionRepo
             .SumAsync(t => t.Amount, ct);
     }
 
-    public async Task<decimal> GetTotalForPeriodExcludingAsync(
-        string userId,
-        long categoryId,
-        DateOnly start,
-        DateOnly end,
-        IReadOnlyCollection<long> excludeTransactionIds,
-        CancellationToken ct,
-        TransactionType? type = TransactionType.Expense)
+    public async Task<Dictionary<DateOnly, decimal>> GetTotalsByDateAsync(
+        string userId, 
+        long categoryId, 
+        DateOnly start, 
+        DateOnly end, 
+        CancellationToken ct, 
+        TransactionType type = TransactionType.Expense)
     {
         return await dbContext.Transactions
+            .AsNoTracking()
+            .Where(t =>
+                t.UserId == userId &&
+                t.CategoryId == categoryId &&
+                t.PaidOrReceivedAt >= start &&
+                t.PaidOrReceivedAt <= end &&
+                t.Type == type)
+            .GroupBy(t => t.PaidOrReceivedAt)
+            .Select(g => new
+            {
+                Date = g.Key,
+                Total = g.Sum(t => t.Amount)
+            })
+            .ToDictionaryAsync(x => x.Date, x => x.Total, ct);
+    }
+
+    public async Task<Dictionary<DateOnly, decimal>> GetTotalsByDateExcludingAsync(
+        string userId, 
+        long categoryId, 
+        DateOnly start, 
+        DateOnly end, 
+        IReadOnlyCollection<long> excludeTransactionIds, 
+        CancellationToken ct, 
+        TransactionType type = TransactionType.Expense)
+    {
+        return await dbContext.Transactions
+            .AsNoTracking()
             .Where(t =>
                 t.UserId == userId &&
                 t.CategoryId == categoryId &&
@@ -129,7 +155,13 @@ public class TransactionRepository(SaldoaDbContext dbContext) : ITransactionRepo
                 t.PaidOrReceivedAt >= start &&
                 t.PaidOrReceivedAt <= end &&
                 t.Type == type)
-            .SumAsync(t => t.Amount, ct);
+            .GroupBy(t => t.PaidOrReceivedAt)
+            .Select(g => new
+            {
+                Date = g.Key,
+                Total = g.Sum(t => t.Amount)
+            })
+            .ToDictionaryAsync(x => x.Date, x => x.Total, ct);
     }
 
     public async Task<bool> ExistsForCategoryAsync(long categoryId, string userId, CancellationToken ct)

@@ -22,56 +22,48 @@ namespace Saldoa.Application.Transactions.Common
             CancellationToken ct)
         {
             var result = new List<BudgetAlert>();
-            var amountsByBudgetPeriod = new Dictionary<(DateOnly Start, DateOnly End), decimal>();
+            if (installments.Count == 0)
+                return result;
 
-            foreach (var installment in installments)
+            var installmentsStart = installments.Min(i => i.Date);
+            var installmentsEnd = installments.Max(i => i.Date);
+
+            var affectedBudgets = await _categoryBudgetRepository.GetActiveForPeriodAsync(
+                userId,
+                categoryId,
+                installmentsStart,
+                installmentsEnd,
+                ct);
+
+            if (affectedBudgets.Count == 0)
+                return result;
+
+            var budgetsStart = affectedBudgets.Min(b => b.PeriodStart);
+            var budgetsEnd = affectedBudgets.Max(b => b.PeriodEnd);
+
+            var totalsByDate = await _transactionRepository.GetTotalsByDateExcludingAsync(userId, categoryId, budgetsStart, budgetsEnd, excludeTransactionIds, ct, TransactionType.Expense);
+
+            foreach (var budget in affectedBudgets)
             {
-                var budget = await _categoryBudgetRepository.GetActiveForPeriodAsync(
-                    userId,
-                    categoryId,
-                    installment.Date,
-                    ct);
+                var installmentsPerBudget = installments.Where(i => i.Date >= budget.PeriodStart && i.Date <= budget.PeriodEnd);
 
-                if (budget is null)
-                    continue;
-
-                var key = (budget.PeriodStart, budget.PeriodEnd);
-
-                if (!amountsByBudgetPeriod.ContainsKey(key))
-                    amountsByBudgetPeriod[key] = 0;
-
-                amountsByBudgetPeriod[key] += installment.Amount;
-            }
-
-            foreach (var period in amountsByBudgetPeriod)
-            {
-                decimal spent = await _transactionRepository.GetTotalForPeriodExcludingAsync(
-                        userId,
-                        categoryId,
-                        period.Key.Start,
-                        period.Key.End,
-                        excludeTransactionIds,
-                        ct,
-                        TransactionType.Expense
-                );
-
-                var totalProjected = spent + period.Value;
-
-                var budget = await _categoryBudgetRepository.GetActiveForPeriodAsync(
-                    userId,
-                    categoryId,
-                    period.Key.Start,
-                    ct
-                );
-
-                if (budget is not null && totalProjected > budget.LimitAmount)
+                if (installmentsPerBudget.Any())
                 {
-                    result.Add(new BudgetAlert(
-                        spent, 
-                        totalProjected, 
-                        budget.LimitAmount, 
-                        $"Limite excedido para o período {period.Key.Start:MM/yyyy}"
-                    ));
+                    var amount = installmentsPerBudget.Sum(i => i.Amount);
+
+                    var spent = totalsByDate.Where(t => t.Key >= budget.PeriodStart && t.Key <= budget.PeriodEnd).Sum(t => t.Value);
+
+                    var totalProjected = spent + amount;
+
+                    if (totalProjected > budget.LimitAmount)
+                    {
+                        result.Add(new BudgetAlert(
+                            spent,
+                            totalProjected,
+                            budget.LimitAmount,
+                            $"Limite excedido para o período {budget.PeriodStart:dd/MM/yyyy} - {budget.PeriodEnd:dd/MM/yyyy}"
+                        ));
+                    }
                 }
             }
 
@@ -85,55 +77,48 @@ namespace Saldoa.Application.Transactions.Common
             CancellationToken ct)
         {
             var result = new List<BudgetAlert>();
-            var amountsByBudgetPeriod = new Dictionary<(DateOnly Start, DateOnly End), decimal>();
+            if (installments.Count == 0)
+                return result;
 
-            foreach (var installment in installments)
+            var installmentsStart = installments.Min(i => i.Date);
+            var installmentsEnd = installments.Max(i => i.Date);
+
+            var affectedBudgets = await _categoryBudgetRepository.GetActiveForPeriodAsync(
+                userId,
+                categoryId,
+                installmentsStart,
+                installmentsEnd,
+                ct);
+
+            if (affectedBudgets.Count == 0)
+                return result;
+
+            var budgetsStart = affectedBudgets.Min(b => b.PeriodStart);
+            var budgetsEnd = affectedBudgets.Max(b => b.PeriodEnd);
+
+            var totalsByDate = await _transactionRepository.GetTotalsByDateAsync(userId, categoryId, budgetsStart, budgetsEnd, ct, TransactionType.Expense);
+
+            foreach (var budget in affectedBudgets)
             {
-                var budget = await _categoryBudgetRepository.GetActiveForPeriodAsync(
-                    userId,
-                    categoryId,
-                    installment.Date,
-                    ct);
+                var installmentsPerBudget = installments.Where(i => i.Date >= budget.PeriodStart && i.Date <= budget.PeriodEnd);
 
-                if (budget is null)
-                    continue;
-
-                var key = (budget.PeriodStart, budget.PeriodEnd);
-
-                if (!amountsByBudgetPeriod.ContainsKey(key))
-                    amountsByBudgetPeriod[key] = 0;
-
-                amountsByBudgetPeriod[key] += installment.Amount;
-            }
-
-            foreach (var period in amountsByBudgetPeriod)
-            {
-                decimal spent = await _transactionRepository.GetTotalForPeriodAsync(
-                        userId,
-                        categoryId,
-                        period.Key.Start,
-                        period.Key.End,
-                        ct,
-                        TransactionType.Expense
-                );
-
-                var totalProjected = spent + period.Value;
-
-                var budget = await _categoryBudgetRepository.GetActiveForPeriodAsync(
-                    userId,
-                    categoryId,
-                    period.Key.Start,
-                    ct
-                );
-
-                if (budget is not null && totalProjected > budget.LimitAmount)
+                if (installmentsPerBudget.Any())
                 {
-                    result.Add(new BudgetAlert(
-                        spent,
-                        totalProjected,
-                        budget.LimitAmount,
-                        $"Limite excedido para o período {period.Key.Start:MM/yyyy}"
-                    ));
+                    var amount = installmentsPerBudget.Sum(i => i.Amount);
+
+                    var spent = totalsByDate.Where(t => t.Key >= budget.PeriodStart && t.Key <= budget.PeriodEnd).Sum(t => t.Value);
+
+                    var totalProjected = spent + amount;
+
+                    if (totalProjected > budget.LimitAmount)
+                    {
+                        result.Add(new BudgetAlert(
+                            spent,
+                            totalProjected,
+                            budget.LimitAmount,
+                            $"Limite excedido para o período {budget.PeriodStart:dd/MM/yyyy} - {budget.PeriodEnd:dd/MM/yyyy}"
+                        ));
+                    }
                 }
             }
 

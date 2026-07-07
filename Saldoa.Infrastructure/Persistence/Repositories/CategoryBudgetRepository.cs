@@ -119,14 +119,17 @@ public class CategoryBudgetRepository(SaldoaDbContext dbContext) : ICategoryBudg
             ct);
     }
 
-    public async Task<CategoryBudget?> GetActiveForPeriodAsync(string userId, long categoryId, DateOnly date, CancellationToken ct)
+    public async Task<List<CategoryBudget>> GetActiveForPeriodAsync(string userId, long categoryId, DateOnly periodStart, DateOnly periodEnd, CancellationToken ct)
     {
         return await dbContext.CategoryBudgets
             .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.UserId == userId
-                                      && c.CategoryId == categoryId
-                                      && c.PeriodStart <= date
-                                      && c.PeriodEnd >= date, cancellationToken: ct);
+            .Where(c => c.UserId == userId
+                        && c.CategoryId == categoryId
+                        && c.PeriodStart <= periodEnd
+                        && c.PeriodEnd >= periodStart)
+            .OrderBy(b => b.PeriodStart)
+            .ThenBy(b => b.PeriodEnd)
+            .ToListAsync(ct);
     }
 
     public async Task<PagedResult<CategoryBudget>> GetByCategoryAsync(string userId, long categoryId, int pageNumber, int pageSize, CancellationToken ct)
