@@ -11,6 +11,7 @@ public static class LoginEndpoint
         authGroup.MapPost("/login", 
             async Task<IResult> (
                 LoginRequest request,
+                HttpContext httpContext,
                 IValidator<LoginRequest> validator,
                 LoginUseCase useCase,
                 CancellationToken ct) =>
@@ -45,13 +46,19 @@ public static class LoginEndpoint
                     );
                 }
             
-                return TypedResults.Ok(result.Value);
+                var authResult = result.Value!;
+                RefreshTokenCookie.Append(
+                    httpContext.Response,
+                    authResult.RefreshToken,
+                    authResult.RefreshTokenExpiresAt);
+
+                return TypedResults.Ok(authResult.ToResponse());
             }
         )
         .WithSummary("Autentica o usuário")
         .WithDescription(
             "Realiza a autenticação utilizando e-mail e senha. " +
-            "Em caso de sucesso, retorna um Access Token (JWT) e um Refresh Token com suas respectivas datas de expiração. " +
+            "Em caso de sucesso, retorna um Access Token (JWT) e grava o Refresh Token em cookie HttpOnly, Secure e SameSite. " +
             "Em caso de credenciais inválidas, retorna 401."
         );
     }

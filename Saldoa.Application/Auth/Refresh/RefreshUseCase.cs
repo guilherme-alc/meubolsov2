@@ -29,22 +29,34 @@ public sealed class RefreshUseCase
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<Result<AuthResponse>> ExecuteAsync(string refreshTokenRaw, CancellationToken ct)
+    public async Task<Result<AuthResult>> ExecuteAsync(string refreshTokenRaw, CancellationToken ct)
     {
         var hash = RefreshTokenCrypto.HashToken(refreshTokenRaw);
         var stored = await _refreshRepo.GetByHashAsync(hash, ct);
 
-        if (stored is null || stored.IsExpired || stored.IsRevoked)
+        if (stored is null)
         {
             var error = AuthErrors.InvalidAccess;
-            return Result<AuthResponse>.Failure(error);
+            return Result<AuthResult>.Failure(error);
+        }
+
+        if (stored.IsRevoked)
+        {
+            var error = AuthErrors.InvalidAccess;
+            return Result<AuthResult>.Failure(error);
+        }
+
+        if (stored.IsExpired)
+        {
+            var error = AuthErrors.InvalidAccess;
+            return Result<AuthResult>.Failure(error);
         }
 
         var email = await _identityService.GetEmailByUserIdAsync(stored.UserId, ct);
         if (email is null)
         {
             var error = AuthErrors.InvalidAccess;
-            return Result<AuthResponse>.Failure(error);
+            return Result<AuthResult>.Failure(error);
         }
 
         var newRefresh = _refreshTokenService.Generate();
@@ -59,10 +71,10 @@ public sealed class RefreshUseCase
             email: email,
             claims: []);
 
-        return Result<AuthResponse>.Success(new AuthResponse(
+        return Result<AuthResult>.Success(new AuthResult(
             AccessToken: newAccessResult.Token,
-            AccessTokenExpiresAt: newAccessResult.ExpiresAt,
             RefreshToken: newRefresh.RawToken,
+            AccessTokenExpiresAt: newAccessResult.ExpiresAt,
             RefreshTokenExpiresAt: newRefresh.ExpiresAt
         ));
     }

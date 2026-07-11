@@ -29,7 +29,7 @@ public class LoginUseCase
         _unitOfWork = unitOfWork;
     }
     
-    public async Task<Result<AuthResponse>> ExecuteAsync(LoginRequest request, CancellationToken ct)
+    public async Task<Result<AuthResult>> ExecuteAsync(LoginRequest request, CancellationToken ct)
     {
         var userId = await _identityService
             .SignInAsync(request.Email, request.Password, ct);
@@ -37,7 +37,7 @@ public class LoginUseCase
         if (userId is null)
         {
             var error = AuthErrors.InvalidAccess;
-            return Result<AuthResponse>.Failure(error);
+            return Result<AuthResult>.Failure(error);
         }
 
         var accessTokenResult = _jwtProvider.CreateAccessToken(
@@ -51,11 +51,11 @@ public class LoginUseCase
         await _refreshRepo.AddAsync(entity, ct);
         await _unitOfWork.SaveChangesAsync(ct);
         
-        return Result<AuthResponse>.Success(
-            new AuthResponse(
+        return Result<AuthResult>.Success(
+            new AuthResult(
                 AccessToken: accessTokenResult.Token,
-                AccessTokenExpiresAt: accessTokenResult.ExpiresAt,
                 RefreshToken: refreshToken.RawToken,
+                AccessTokenExpiresAt: accessTokenResult.ExpiresAt,
                 RefreshTokenExpiresAt: refreshToken.ExpiresAt
             )
         );

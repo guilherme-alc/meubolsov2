@@ -9,23 +9,35 @@ public static class RefreshEndpoint
     {
         authGroup.MapPost("/refresh", 
             async Task<IResult> (
-                RefreshRequest request,
+                HttpContext httpContext,
+                IConfiguration configuration,
                 RefreshUseCase useCase,
                 CancellationToken ct) =>
             {
-                if (string.IsNullOrWhiteSpace(request.RefreshToken))
+                if (!AuthRequestSecurity.IsTrustedRefreshRequest(httpContext.Request, configuration))
+                    return AuthRequestSecurity.InvalidOriginProblem();
+
+                var refreshToken = RefreshTokenCookie.Read(httpContext.Request);
+
+                if (string.IsNullOrWhiteSpace(refreshToken))
+                {
+                    RefreshTokenCookie.Delete(httpContext.Response);
+
                     return TypedResults.Problem(
                         title: "Auth.InvalidAccess",
                         detail: "Acesso inválido",
                         statusCode: StatusCodes.Status401Unauthorized
                     );
+                }
 
-                var result = await useCase.ExecuteAsync(request.RefreshToken, ct);
+                var result = await useCase.ExecuteAsync(refreshToken, ct);
 
                 if (!result.IsSuccess)
                 {
                     var error = result.Error!;
                     int statusCode = StatusCodeMapper.GetCode(error.Type);
+
+                    RefreshTokenCookie.Delete(httpContext.Response);
 
                     return TypedResults.Problem(
                         detail: error.Message,
@@ -34,12 +46,18 @@ public static class RefreshEndpoint
                     );
                 }
 
-                return TypedResults.Ok(result.Value);
+                var authResult = result.Value!;
+                RefreshTokenCookie.Append(
+                    httpContext.Response,
+                    authResult.RefreshToken,
+                    authResult.RefreshTokenExpiresAt);
+
+                return TypedResults.Ok(authResult.ToResponse());
             }
         )
         .WithSummary("Renova o Access Token")
         .WithDescription(
-            "Gera um novo Access Token a partir de um Refresh Token válido. " +
+            "Gera um novo Access Token a partir do Refresh Token armazenado no cookie seguro. " +
             "O Refresh Token utilizado é revogado e substituído por um novo (rotação de token). " +
             "Retorna 401 caso o token esteja inválido, expirado ou revogado."
         );
