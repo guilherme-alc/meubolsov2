@@ -42,6 +42,12 @@ public sealed class RefreshUseCase
 
         if (stored.IsRevoked)
         {
+            if (!string.IsNullOrWhiteSpace(stored.ReplacedByTokenHash))
+            {
+                await _refreshRepo.RevokeTokenFamilyAsync(stored.ReplacedByTokenHash, ct);
+                await _unitOfWork.SaveChangesAsync(ct);
+            }
+
             var error = AuthErrors.InvalidAccess;
             return Result<AuthResult>.Failure(error);
         }

@@ -27,6 +27,9 @@ public class RefreshToken
 
     public void Revoke(string? replacedByTokenHash = null)
     {
+        if (RevokedAt is not null)
+            return;
+
         RevokedAt = DateTime.UtcNow;
         ReplacedByTokenHash = replacedByTokenHash;
     }

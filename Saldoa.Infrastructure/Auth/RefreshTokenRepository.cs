@@ -12,4 +12,23 @@ public class RefreshTokenRepository(SaldoaDbContext dbContext) : IRefreshTokenRe
 
     public Task<RefreshToken?> GetByHashAsync(string tokenHash, CancellationToken ct = default)
         => dbContext.Set<RefreshToken>().SingleOrDefaultAsync(x => x.TokenHash == tokenHash, ct);
+
+    public async Task RevokeTokenFamilyAsync(string tokenHash, CancellationToken ct = default)
+    {
+        var nextTokenHash = tokenHash;
+        var visitedTokenHashes = new HashSet<string>(StringComparer.Ordinal);
+
+        while (!string.IsNullOrWhiteSpace(nextTokenHash) &&
+               visitedTokenHashes.Add(nextTokenHash))
+        {
+            var refreshToken = await GetByHashAsync(nextTokenHash, ct);
+            if (refreshToken is null)
+                return;
+
+            nextTokenHash = refreshToken.ReplacedByTokenHash;
+
+            if (!refreshToken.IsRevoked)
+                refreshToken.Revoke();
+        }
+    }
 }
