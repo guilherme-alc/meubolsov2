@@ -482,3 +482,6 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Local planning notes live in Notion, not in the repository.
+BACKLOG_ROADMAP.md
