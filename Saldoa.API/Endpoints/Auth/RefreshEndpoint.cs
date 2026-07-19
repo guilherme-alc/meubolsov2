@@ -1,4 +1,5 @@
 using Saldoa.API.Common;
+using Saldoa.API.Security;
 using Saldoa.Application.Auth.Refresh;
 
 namespace Saldoa.API.Endpoints.Auth;
@@ -55,6 +56,7 @@ public static class RefreshEndpoint
                 return TypedResults.Ok(authResult.ToResponse());
             }
         )
+        .RequireRateLimiting(RateLimitPolicies.Refresh)
         .WithSummary("Renova o Access Token")
         .WithDescription(
             "Gera um novo Access Token a partir do Refresh Token armazenado no cookie seguro. " +

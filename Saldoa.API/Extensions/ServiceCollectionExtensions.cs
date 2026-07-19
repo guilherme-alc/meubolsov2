@@ -1,8 +1,10 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using Saldoa.API.OpenApi;
+using Saldoa.API.Security;
 using Saldoa.Application.Auth.Login;
 using Saldoa.Application.Auth.Logout;
 using Saldoa.Application.Auth.Refresh;
@@ -27,7 +29,11 @@ using Saldoa.Application.Transactions.ListByPeriod;
 using Saldoa.Application.Transactions.Update;
 using Saldoa.Infrastructure;
 using Saldoa.Infrastructure.Auth;
+using System.Globalization;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
+using System.Threading.RateLimiting;
 
 namespace Saldoa.API.Extensions;
 

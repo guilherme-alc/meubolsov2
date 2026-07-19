@@ -51,6 +51,9 @@ public static class WebApplicationExtensions
 
         // Segurança
         app.UseAuthentication();
+
+        app.UseRateLimiter();
+
         app.UseAuthorization();
         
         // Endpoints

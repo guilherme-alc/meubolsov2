@@ -1,5 +1,6 @@
 using FluentValidation;
 using Saldoa.API.Common;
+using Saldoa.API.Security;
 using Saldoa.Application.Auth.Login;
 
 namespace Saldoa.API.Endpoints.Auth;
@@ -55,6 +56,7 @@ public static class LoginEndpoint
                 return TypedResults.Ok(authResult.ToResponse());
             }
         )
+        .RequireRateLimiting(RateLimitPolicies.Login)
         .WithSummary("Autentica o usuário")
         .WithDescription(
             "Realiza a autenticação utilizando e-mail e senha. " +

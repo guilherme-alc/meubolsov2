@@ -1,5 +1,6 @@
 using FluentValidation;
 using Saldoa.API.Common;
+using Saldoa.API.Security;
 using Saldoa.Application.Auth.Register;
 
 namespace Saldoa.API.Endpoints.Auth;
@@ -8,7 +9,7 @@ public static class RegisterEndpoint
 {
     public static void Map(RouteGroupBuilder authGroup)
     {
-        authGroup.MapPost("/register", 
+        authGroup.MapPost("/register",
             async Task<IResult> (
                 RegisterRequest request,
                 IValidator<RegisterRequest> validator,
@@ -48,6 +49,7 @@ public static class RegisterEndpoint
                 return TypedResults.NoContent();
             }
         )
+        .RequireRateLimiting(RateLimitPolicies.Register)
         .WithSummary("Cadastra usuário")
         .WithDescription(
             "Realiza a autenticação utilizando e-mail e senha. " +

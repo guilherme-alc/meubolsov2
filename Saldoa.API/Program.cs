@@ -12,6 +12,7 @@ namespace Saldoa.API
                 .AddOpenApi()
                 .AddInfrastructure()
                 .AddAuth()
+                .AddApplicationRateLimiting()
                 .AddApplication();
             
             // Habilita validacao de escopo para servicos
