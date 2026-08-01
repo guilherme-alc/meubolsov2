@@ -1,6 +1,11 @@
-using Saldoa.Application.Identity.Abstractions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
+using Saldoa.Application.Auth.Common;
+using Saldoa.Application.Common.Results;
+using Saldoa.Application.Identity;
+using Saldoa.Application.Identity.Abstractions;
+using System.Text;
 
 namespace Saldoa.Infrastructure.Identity;
 
@@ -20,7 +25,7 @@ public sealed class IdentityService : IIdentityService
         return _userManager.Users.AnyAsync(u => u.NormalizedEmail == normalized, ct);
     }
 
-    public async Task<string> CreateUserAsync(string email, string password, string? fullName, CancellationToken ct = default)
+    public async Task<Result<CreateUserResult>> CreateUserAsync(string email, string password, string? fullName, CancellationToken ct = default)
     {
         ct.ThrowIfCancellationRequested();
         var user = new ApplicationUser
@@ -39,7 +44,10 @@ public sealed class IdentityService : IIdentityService
             throw new Exception(string.Join(
                 ", ", result.Errors.Select(e => e.Description)));
 
-        return user.Id;
+        var rawConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        var confirmationToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawConfirmationToken));
+
+        return Result<CreateUserResult>.Success(new CreateUserResult(confirmationToken, email, user.Id));
     }
 
     public async Task<string?> SignInAsync(string email, string password, CancellationToken ct = default)

@@ -6,9 +6,11 @@ using Saldoa.Application.Auth.Abstractions;
 using Saldoa.Application.Categories.Abstractions;
 using Saldoa.Application.CategoryBudgets.Abstractions;
 using Saldoa.Application.Common.Abstractions;
+using Saldoa.Application.Email.Abstractions;
 using Saldoa.Application.Identity.Abstractions;
 using Saldoa.Application.Transactions.Abstractions;
 using Saldoa.Infrastructure.Auth;
+using Saldoa.Infrastructure.Email;
 using Saldoa.Infrastructure.Identity;
 using Saldoa.Infrastructure.Persistence;
 using Saldoa.Infrastructure.Persistence.Repositories;
@@ -21,6 +23,8 @@ namespace Saldoa.Infrastructure
             this IServiceCollection services,
             IConfiguration configuration)
         {
+            services.Configure<EmailOptions>(configuration.GetSection(EmailOptions.SectionName));
+
             services.AddDbContext<SaldoaDbContext>(options =>
                 options.UseNpgsql(
                     configuration.GetConnectionString("DefaultConnection")));
@@ -32,6 +36,7 @@ namespace Saldoa.Infrastructure
 
             services.AddScoped<IJwtProvider, JwtProvider>();
             services.AddScoped<IIdentityService, IdentityService>();
+            services.AddScoped<IEmailService, SmtpEmailService>();
             services.AddScoped<IRefreshTokenGenerator, RefreshTokenGenerator>();
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
