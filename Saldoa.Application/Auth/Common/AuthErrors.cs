@@ -16,6 +16,10 @@ namespace Saldoa.Application.Auth.Common
             new("Auth.Invalid", "Dados informados inválidos", ErrorType.Validation);
         public static Error InvalidConfirmToken =>
             new("Auth.InvalidConfirmToken", "Token de confirmação inválido ou expirado.", ErrorType.Validation);
+        public static Error EmailNotConfirmed =>
+            new("Auth.EmailNotConfirmed", "Email não confirmado.", ErrorType.Validation);
+        public static Error InvalidCredentials =>
+            new("Auth.InvalidCredentials", "Credenciais inválidas.", ErrorType.Validation);
         public static Error UserNotFound =>
             new("Auth.UserNotFound", "Usuário não encontrado.", ErrorType.Validation);
     }

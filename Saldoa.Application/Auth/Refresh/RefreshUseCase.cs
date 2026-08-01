@@ -58,11 +58,10 @@ public sealed class RefreshUseCase
             return Result<AuthResult>.Failure(error);
         }
 
-        var email = await _identityService.GetEmailByUserIdAsync(stored.UserId, ct);
-        if (email is null)
+        var result = await _identityService.GetEmailByUserIdAsync(stored.UserId, ct);
+        if (!result.IsSuccess)
         {
-            var error = AuthErrors.InvalidAccess;
-            return Result<AuthResult>.Failure(error);
+            return Result<AuthResult>.Failure(result.Error!);
         }
 
         var newRefresh = _refreshTokenService.Generate();
@@ -74,7 +73,7 @@ public sealed class RefreshUseCase
 
         var newAccessResult = _jwtProvider.CreateAccessToken(
             userId: stored.UserId,
-            email: email,
+            email: result.Value!,
             claims: []);
 
         return Result<AuthResult>.Success(new AuthResult(

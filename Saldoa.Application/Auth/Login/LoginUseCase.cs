@@ -31,23 +31,22 @@ public class LoginUseCase
     
     public async Task<Result<AuthResult>> ExecuteAsync(LoginRequest request, CancellationToken ct)
     {
-        var userId = await _identityService
+        var result = await _identityService
             .SignInAsync(request.Email, request.Password, ct);
-       
-        if (userId is null)
+
+        if (!result.IsSuccess)
         {
-            var error = AuthErrors.InvalidAccess;
-            return Result<AuthResult>.Failure(error);
+            return Result<AuthResult>.Failure(AuthErrors.InvalidAccess);
         }
 
         var accessTokenResult = _jwtProvider.CreateAccessToken(
-            userId: userId,
+            userId: result.Value!,
             email: request.Email,
             claims: []);
         
         var refreshToken = _refreshTokenService.Generate();
         
-        var entity = new RefreshToken(refreshToken.TokenHash, userId, refreshToken.ExpiresAt);
+        var entity = new RefreshToken(refreshToken.TokenHash, result.Value!, refreshToken.ExpiresAt);
         await _refreshRepo.AddAsync(entity, ct);
         await _unitOfWork.SaveChangesAsync(ct);
         

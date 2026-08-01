@@ -50,20 +50,24 @@ public sealed class IdentityService : IIdentityService
         return Result<CreateUserResult>.Success(new CreateUserResult(confirmationToken, email, user.Id));
     }
 
-    public async Task<string?> SignInAsync(string email, string password, CancellationToken ct = default)
+    public async Task<Result<string>> SignInAsync(string email, string password, CancellationToken ct = default)
     {
         var normalized = _userManager.NormalizeEmail(email);
         var user = await _userManager.Users
             .FirstOrDefaultAsync(u => u.NormalizedEmail == normalized, ct);
         
         if (user is null || !user.IsActive)
-            return null;
-        
+            return Result<string>.Failure(AuthErrors.InvalidCredentials);
+
         ct.ThrowIfCancellationRequested();
-        var ok = await _userManager.CheckPasswordAsync(user, password);
-        
-        if(!ok)
-            return null;
+
+        var passwordIsValid = await _userManager.CheckPasswordAsync(user, password);
+        if (!passwordIsValid)
+            return Result<string>.Failure(AuthErrors.InvalidCredentials);
+
+        var emailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
+        if(!emailConfirmed)
+            return Result<string>.Failure(AuthErrors.EmailNotConfirmed);
 
         user.LastLoginAt = DateTime.UtcNow;
         
@@ -71,16 +75,21 @@ public sealed class IdentityService : IIdentityService
         var updateLastLoginResult = await _userManager.UpdateAsync(user);
         if (!updateLastLoginResult.Succeeded)
             throw new Exception(string.Join(", ", updateLastLoginResult.Errors.Select(e => e.Description)));
-        
-        return user.Id;
+
+        return Result<string>.Success(user.Id);
     }
     
-    public async Task<string?> GetEmailByUserIdAsync(string userId, CancellationToken ct = default)
+    public async Task<Result<string?>> GetEmailByUserIdAsync(string userId, CancellationToken ct = default)
     {
         var user = await _userManager.Users
             .SingleOrDefaultAsync(u => u.Id == userId, ct);
         
-        return user?.Email;
+        if(user is null)
+            return Result<string?>.Failure(AuthErrors.UserNotFound);
+
+        return Result<string?>.Success(user.Email);
+    }
+
     public async Task<Result> ConfirmEmailAsync(string userId, string encodedToken, CancellationToken ct)
     {
         var user = await _userManager.FindByIdAsync(userId);
