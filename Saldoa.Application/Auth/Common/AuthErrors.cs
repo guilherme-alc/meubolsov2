@@ -12,5 +12,11 @@ namespace Saldoa.Application.Auth.Common
             new("Auth.InvalidAccess", "Acesso Inválido", ErrorType.Unauthorized);
         public static Error AlreadyExists =>
             new("Auth.AlreadyExists", "Usuário já existe", ErrorType.Conflict);
+        public static Error Invalid =>
+            new("Auth.Invalid", "Dados informados inválidos", ErrorType.Validation);
+        public static Error InvalidConfirmToken =>
+            new("Auth.InvalidConfirmToken", "Token de confirmação inválido ou expirado.", ErrorType.Validation);
+        public static Error UserNotFound =>
+            new("Auth.UserNotFound", "Usuário não encontrado.", ErrorType.Validation);
     }
 }

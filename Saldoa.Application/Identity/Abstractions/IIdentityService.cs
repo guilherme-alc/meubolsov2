@@ -8,4 +8,5 @@ public interface IIdentityService
     Task<Result<CreateUserResult>> CreateUserAsync(string email, string password, string? fullName, CancellationToken ct);
     Task<string?> SignInAsync(string email, string password, CancellationToken ct);
     Task<string?> GetEmailByUserIdAsync(string userId, CancellationToken ct = default);
+    Task<Result> ConfirmEmailAsync(string userId, string encodedToken, CancellationToken ct);
 }

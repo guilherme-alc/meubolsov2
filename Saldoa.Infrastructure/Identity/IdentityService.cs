@@ -81,5 +81,27 @@ public sealed class IdentityService : IIdentityService
             .SingleOrDefaultAsync(u => u.Id == userId, ct);
         
         return user?.Email;
+    public async Task<Result> ConfirmEmailAsync(string userId, string encodedToken, CancellationToken ct)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null)
+            return Result.Failure(AuthErrors.UserNotFound);
+
+        string decodedToken;
+        try
+        {
+            decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(encodedToken.Trim()));
+        }
+        catch (Exception exception) when (exception is FormatException or ArgumentException)
+        {
+            return Result.Failure(AuthErrors.InvalidConfirmToken);
+        }
+
+        var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
+
+        if (!result.Succeeded)
+            return Result.Failure(AuthErrors.InvalidConfirmToken);
+
+        return Result.Success();
     }
 }
