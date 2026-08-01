@@ -12,11 +12,14 @@ namespace Saldoa.Infrastructure.Identity;
 public sealed class IdentityService : IIdentityService
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
 
     public IdentityService(
-        UserManager<ApplicationUser> userManager)
+        UserManager<ApplicationUser> userManager,
+        SignInManager<ApplicationUser> signInManager)
     {
         _userManager = userManager;
+        _signInManager = signInManager;
     }
     
     public Task<bool> UserExistsAsync(string email, CancellationToken ct = default)
@@ -61,18 +64,25 @@ public sealed class IdentityService : IIdentityService
 
         ct.ThrowIfCancellationRequested();
 
-        var passwordIsValid = await _userManager.CheckPasswordAsync(user, password);
-        if (!passwordIsValid)
-            return Result<string>.Failure(AuthErrors.InvalidCredentials);
+        var result = await _signInManager.CheckPasswordSignInAsync(
+            user,
+            password,
+            lockoutOnFailure: true);
 
-        var emailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
-        if(!emailConfirmed)
+        if (result.IsLockedOut)
+            return Result<string>.Failure(AuthErrors.Forbidden);
+
+        if (result.IsNotAllowed)
             return Result<string>.Failure(AuthErrors.EmailNotConfirmed);
+
+        if (!result.Succeeded)
+            return Result<string>.Failure(AuthErrors.InvalidCredentials);
 
         user.LastLoginAt = DateTime.UtcNow;
         
         ct.ThrowIfCancellationRequested();
         var updateLastLoginResult = await _userManager.UpdateAsync(user);
+
         if (!updateLastLoginResult.Succeeded)
             throw new Exception(string.Join(", ", updateLastLoginResult.Errors.Select(e => e.Description)));
 

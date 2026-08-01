@@ -25,6 +25,18 @@ namespace Saldoa.Infrastructure
         {
             services.Configure<EmailOptions>(configuration.GetSection(EmailOptions.SectionName));
 
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.SignIn.RequireConfirmedEmail = true;
+            });
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+            });
+
             services.AddDbContext<SaldoaDbContext>(options =>
                 options.UseNpgsql(
                     configuration.GetConnectionString("DefaultConnection")));
@@ -50,6 +62,7 @@ namespace Saldoa.Infrastructure
                 options.User.RequireUniqueEmail = true;
             })
             .AddEntityFrameworkStores<SaldoaDbContext>()
+            .AddSignInManager()
             .AddDefaultTokenProviders();
 
             return services;
