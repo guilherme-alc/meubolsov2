@@ -10,13 +10,13 @@ public class ApplicationUserConfiguration :  IEntityTypeConfiguration<Applicatio
     {
         builder.ToTable("users", "auth");
         
-        builder.Property(u => u.FullName)
-            .HasColumnName("full_name")
-            .IsRequired(false)
-            .HasMaxLength(255);
-        
-        builder.Property(u => u.CustomerId)
-            .HasColumnName("customer_id")
+        builder.Property(u => u.FirstName)
+            .HasColumnName("first_name")
+            .IsRequired()
+            .HasMaxLength(100);
+
+        builder.Property(u => u.LastName)
+            .HasColumnName("last_name")
             .IsRequired(false)
             .HasMaxLength(100);
         
@@ -34,5 +34,8 @@ public class ApplicationUserConfiguration :  IEntityTypeConfiguration<Applicatio
 
         builder.Property(u => u.LastLoginAt)
             .HasColumnName("last_login_at");
+
+        builder.Property(u => u.LastConfirmationEmailSentAt)
+            .HasColumnName("last_confirmation_email_sent_at");
     }
 }

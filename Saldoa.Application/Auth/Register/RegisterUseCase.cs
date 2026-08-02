@@ -27,7 +27,8 @@ public class RegisterUseCase
         var result = await _identityService.CreateUserAsync(
             request.Email, 
             request.Password, 
-            request.FullName,
+            request.FirstName,
+            request.LastName,
             ct);
         
         if(!result.IsSuccess)
@@ -49,6 +50,8 @@ public class RegisterUseCase
         EmailMessage emailMessage = new(result.Value.Email, "Bem-vindo ao Saldoa! - Confirme seu e-mail", body);
 
         await _emailService.SendAsync(emailMessage, ct);
+
+        await _identityService.UpdateLastConfirmationEmailSentAtAsync(result.Value.UserId, ct);
 
         return Result.Success();
     }

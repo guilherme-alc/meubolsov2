@@ -18,8 +18,18 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
             .MinimumLength(8)
             .WithMessage("A senha precisa ter no mínimo 8 caracteres");
 
-        RuleFor(x => x.FullName)
-            .MinimumLength(3)
-            .WithMessage("O nome deve ser maior que 3 caracteres");
+        RuleFor(x => x.FirstName)
+            .NotEmpty()
+            .WithMessage("O nome é obrigatório")
+            .MinimumLength(2)
+            .WithMessage("O nome deve ter no mínimo 2 caracteres")
+            .MaximumLength(100)
+            .WithMessage("O nome não pode ter mais de 100 caracteres");
+
+        RuleFor(x => x.LastName)
+            .MinimumLength(2)
+            .WithMessage("O sobrenome deve ter no mínimo 2 caracteres")
+            .MaximumLength(100)
+            .WithMessage("O sobrenome não pode ter mais de 100 caracteres");
     }
 }

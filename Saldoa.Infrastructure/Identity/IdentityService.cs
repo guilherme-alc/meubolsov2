@@ -28,14 +28,15 @@ public sealed class IdentityService : IIdentityService
         return _userManager.Users.AnyAsync(u => u.NormalizedEmail == normalized, ct);
     }
 
-    public async Task<Result<CreateUserResult>> CreateUserAsync(string email, string password, string? fullName, CancellationToken ct = default)
+    public async Task<Result<CreateUserResult>> CreateUserAsync(string email, string password, string firstName, string? lastName, CancellationToken ct = default)
     {
         ct.ThrowIfCancellationRequested();
         var user = new ApplicationUser
         {
             UserName = email,
             Email = email,
-            FullName = fullName,
+            FirstName = firstName,
+            LastName = lastName,
             IsActive =  true,
             IsPremium = false,
             CreatedAt = DateTime.UtcNow
@@ -120,6 +121,23 @@ public sealed class IdentityService : IIdentityService
 
         if (!result.Succeeded)
             return Result.Failure(AuthErrors.InvalidConfirmToken);
+
+        return Result.Success();
+    }
+
+    public async Task<Result> UpdateLastConfirmationEmailSentAtAsync(string userId, CancellationToken ct)
+    {
+        var user = await _userManager.Users
+            .FirstOrDefaultAsync(u => u.Id == userId, ct);
+
+        if (user is null)
+            return Result.Failure(AuthErrors.UserNotFound);
+
+        user.LastConfirmationEmailSentAt = DateTime.UtcNow;
+        var result = await _userManager.UpdateAsync(user);
+
+        if (!result.Succeeded)
+            throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
 
         return Result.Success();
     }
