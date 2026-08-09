@@ -22,5 +22,9 @@ namespace Saldoa.Application.Auth.Common
             new("Auth.InvalidCredentials", "Credenciais inválidas.", ErrorType.Validation);
         public static Error UserNotFound =>
             new("Auth.UserNotFound", "Usuário não encontrado.", ErrorType.Validation);
+        public static Error Unexpected =>
+            new("Auth.Unexpected", "Falha inesperada.", ErrorType.Unexpected);
+        public static Error ConfirmationEmailAlreadySent =>
+            new("Auth.ConfirmationEmailAlreadySent", "E-mail de confirmação já enviado recentemente. Por favor, aguarde antes de tentar novamente.", ErrorType.TooManyAttempts);
     }
 }

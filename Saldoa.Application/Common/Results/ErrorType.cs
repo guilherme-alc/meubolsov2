@@ -6,6 +6,8 @@
         NotFound, 
         Conflict, 
         Unauthorized, 
-        Forbidden 
+        Forbidden,
+        Unexpected,
+        TooManyAttempts
     }
 }
