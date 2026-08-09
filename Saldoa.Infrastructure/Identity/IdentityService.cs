@@ -48,10 +48,26 @@ public sealed class IdentityService : IIdentityService
             throw new Exception(string.Join(
                 ", ", result.Errors.Select(e => e.Description)));
 
+        var confirmationToken = await GenerateEmailConfirmationTokenAsync(user.Id, ct);
+
+        if (!confirmationToken.IsSuccess || string.IsNullOrWhiteSpace(confirmationToken.Value))
+            return Result<CreateUserResult>.Failure(AuthErrors.Unexpected);
+
+        return Result<CreateUserResult>.Success(new CreateUserResult(confirmationToken.Value!, email, user.Id));
+    }
+
+    private async Task<Result<string>> GenerateEmailConfirmationTokenAsync(string userId, CancellationToken ct = default)
+    {
+        ct.ThrowIfCancellationRequested();
+
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null)
+            return Result<string>.Failure(AuthErrors.UserNotFound);
+
         var rawConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
         var confirmationToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawConfirmationToken));
 
-        return Result<CreateUserResult>.Success(new CreateUserResult(confirmationToken, email, user.Id));
+        return Result<string>.Success(confirmationToken);
     }
 
     public async Task<Result<string>> SignInAsync(string email, string password, CancellationToken ct = default)
@@ -140,5 +156,35 @@ public sealed class IdentityService : IIdentityService
             throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
 
         return Result.Success();
+    }
+
+    public async Task<Result<ConfirmationTokenResult>> PrepareEmailConfirmationResendAsync(string email, CancellationToken ct)
+    {
+        var normalizedEmail = _userManager.NormalizeEmail(email);
+
+        var user = await _userManager.Users
+            .FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail, ct);
+
+        if (user is null)
+            return Result<ConfirmationTokenResult>.Success(new(false, null, null, null));
+
+        if (user.EmailConfirmed)
+            return Result<ConfirmationTokenResult>.Success(new(false, null, null, null));
+
+        if (user.LastConfirmationEmailSentAt.HasValue && user.LastConfirmationEmailSentAt.Value.AddMinutes(5) > DateTime.UtcNow)
+            return Result<ConfirmationTokenResult>.Failure(AuthErrors.ConfirmationEmailAlreadySent);
+
+        var confirmationToken = await GenerateEmailConfirmationTokenAsync(user.Id, ct);
+
+        if (!confirmationToken.IsSuccess || string.IsNullOrWhiteSpace(confirmationToken.Value))
+            return Result<ConfirmationTokenResult>.Failure(AuthErrors.Unexpected);
+
+        return Result<ConfirmationTokenResult>.Success(
+            new ConfirmationTokenResult(
+                ShouldSendEmail: true, 
+                Email: user.Email, 
+                UserId: user.Id, 
+                Token: confirmationToken.Value)
+        );
     }
 }

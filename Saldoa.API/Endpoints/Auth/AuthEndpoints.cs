@@ -13,5 +13,6 @@ public static class AuthEndpoints
         LogoutEndpoint.Map(authGroup);
         RefreshEndpoint.Map(authGroup);
         ConfirmEmailEndpoint.Map(authGroup);
+        ResendConfirmEmailEndpoint.Map(authGroup);
     }
 }

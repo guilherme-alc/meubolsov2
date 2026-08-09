@@ -42,9 +42,6 @@ public class RegisterUseCase
             <p>
                 Seu token é: {result.Value!.ConfirmationToken}
             </p>
-            <p>
-                Usuário: {result.Value.UserId}
-            </p>
             """;
 
         EmailMessage emailMessage = new(result.Value.Email, "Bem-vindo ao Saldoa! - Confirme seu e-mail", body);
