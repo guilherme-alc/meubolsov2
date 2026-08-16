@@ -18,7 +18,8 @@ public static class RateLimitingExtensions
             ConfigureLoginPolicy(options);
             ConfigureRegisterPolicy(options);
             ConfigureRefreshPolicy(options);
-            ConfigurePasswordRecoveryPolicy(options);
+            ConfigurePasswordResetRequestPolicy(options);
+            ConfigurePasswordResetConfirmPolicy(options);
             ConfigureEmailConfirmationPolicy(options);
         });
 
@@ -128,17 +129,36 @@ public static class RateLimitingExtensions
         });
     }
 
-    private static void ConfigurePasswordRecoveryPolicy(RateLimiterOptions options)
+    private static void ConfigurePasswordResetRequestPolicy(RateLimiterOptions options)
     {
-        options.AddPolicy(RateLimitPolicies.PasswordRecovery, httpContext =>
+        options.AddPolicy(RateLimitPolicies.PasswordResetRequest, httpContext =>
         {
             var clientIp = GetClientIp(httpContext);
 
             return RateLimitPartition.GetFixedWindowLimiter(
-                partitionKey: $"password-recovery:{clientIp}",
+                partitionKey: $"password-reset-request:{clientIp}",
                 factory: _ => new FixedWindowRateLimiterOptions
                 {
                     PermitLimit = 3,
+                    Window = TimeSpan.FromMinutes(15),
+                    QueueLimit = 0,
+                    AutoReplenishment = true
+                }
+            );
+        });
+    }
+
+    private static void ConfigurePasswordResetConfirmPolicy(RateLimiterOptions options)
+    {
+        options.AddPolicy(RateLimitPolicies.PasswordResetConfirm, httpContext =>
+        {
+            var clientIp = GetClientIp(httpContext);
+
+            return RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: $"password-reset-confirm:{clientIp}",
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 10,
                     Window = TimeSpan.FromMinutes(15),
                     QueueLimit = 0,
                     AutoReplenishment = true
