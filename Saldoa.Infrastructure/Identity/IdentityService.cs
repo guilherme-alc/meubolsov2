@@ -219,6 +219,64 @@ public sealed class IdentityService : IIdentityService
             Token: passwordResetToken)
         );
     }
+
+    public async Task<Result> UpdateLastPasswordResetEmailSentAtAsync(string userId, CancellationToken ct)
+    {
+        var user = await _userManager.Users
+            .FirstOrDefaultAsync(u => u.Id == userId, ct);
+
+        if (user is null)
+            return Result.Failure(AuthErrors.UserNotFound);
+
+        user.LastPasswordResetEmailSentAt = DateTime.UtcNow;
+        var result = await _userManager.UpdateAsync(user);
+
+        if (!result.Succeeded)
+            throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+
+        return Result.Success();
     }
+
+    public async Task<Result> ResetPasswordAsync(string userId, string encodedToken, string newPassword, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null)
+            return Result.Failure(AuthErrors.InvalidResetToken);
+
+        string decodedToken;
+        try
+        {
+            decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(encodedToken.Trim()));
+        }
+        catch (Exception exception) when (exception is FormatException or ArgumentException)
+        {
+            return Result.Failure(AuthErrors.InvalidResetToken);
+        }
+
+        ct.ThrowIfCancellationRequested();
+
+        var passwordResetResult = await _userManager.ResetPasswordAsync(user, decodedToken, newPassword);
+
+        if (!passwordResetResult.Succeeded)
+        {
+            var passwordErrors = passwordResetResult.Errors
+                .Where(e => e.Code.StartsWith("Password", StringComparison.OrdinalIgnoreCase));
+
+            if (passwordErrors.Any())
+                return Result.Failure(AuthErrors.InvalidPassword);
+
+            return Result.Failure(AuthErrors.InvalidResetToken);
+        }
+
+        user.LastPasswordResetAt = DateTime.UtcNow;
+
+        var updateUserResult = await _userManager.UpdateAsync(user);
+
+        if (!updateUserResult.Succeeded)
+            throw new Exception(string.Join(", ", updateUserResult.Errors.Select(e => e.Description)));
+
+        return Result.Success();
     }
 }

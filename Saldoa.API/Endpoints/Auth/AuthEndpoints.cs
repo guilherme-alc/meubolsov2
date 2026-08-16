@@ -15,5 +15,6 @@ public static class AuthEndpoints
         ConfirmEmailEndpoint.Map(authGroup);
         ResendConfirmEmailEndpoint.Map(authGroup);
         SendPasswordResetTokenEndpoint.Map(authGroup);
+        ResetPasswordEndpoint.Map(authGroup);
     }
 }

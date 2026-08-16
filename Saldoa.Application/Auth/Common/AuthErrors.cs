@@ -24,7 +24,9 @@ namespace Saldoa.Application.Auth.Common
             new("Auth.UserNotFound", "Usuário não encontrado.", ErrorType.Validation);
         public static Error Unexpected =>
             new("Auth.Unexpected", "Falha inesperada.", ErrorType.Unexpected);
-        public static Error ConfirmationEmailAlreadySent =>
-            new("Auth.ConfirmationEmailAlreadySent", "E-mail de confirmação já enviado recentemente. Por favor, aguarde antes de tentar novamente.", ErrorType.TooManyAttempts);
+        public static Error InvalidResetToken =>
+            new("Auth.InvalidResetToken", "Token de redefinição de senha inválido ou expirado.", ErrorType.Validation);
+        public static Error InvalidPassword =>
+            new("Auth.InvalidPassword", "A senha não atende aos requisitos de segurança.", ErrorType.Validation);
     }
 }

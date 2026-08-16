@@ -12,4 +12,6 @@ public interface IIdentityService
     Task<Result> UpdateLastConfirmationEmailSentAtAsync(string userId, CancellationToken ct);
     Task<Result<ConfirmationTokenResult>> PrepareEmailConfirmationResendAsync(string email, CancellationToken ct);
     Task<Result<ResetPasswordTokenResult>> GenerateResetPasswordTokenAsync(string email, CancellationToken ct);
+    Task<Result> UpdateLastPasswordResetEmailSentAtAsync(string userId, CancellationToken ct);
+    Task<Result> ResetPasswordAsync(string userId, string encodedToken, string newPassword, CancellationToken ct);
 }
