@@ -119,6 +119,8 @@ public sealed class IdentityService : IIdentityService
 
     public async Task<Result> ConfirmEmailAsync(string userId, string encodedToken, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+
         var user = await _userManager.FindByIdAsync(userId);
         if (user is null)
             return Result.Failure(AuthErrors.UserNotFound);
@@ -132,6 +134,8 @@ public sealed class IdentityService : IIdentityService
         {
             return Result.Failure(AuthErrors.InvalidConfirmToken);
         }
+
+        ct.ThrowIfCancellationRequested();
 
         var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
 
@@ -172,7 +176,7 @@ public sealed class IdentityService : IIdentityService
             return Result<ConfirmationTokenResult>.Success(new(false, null, null, null));
 
         if (user.LastConfirmationEmailSentAt.HasValue && user.LastConfirmationEmailSentAt.Value.AddMinutes(5) > DateTime.UtcNow)
-            return Result<ConfirmationTokenResult>.Failure(AuthErrors.ConfirmationEmailAlreadySent);
+            return Result<ConfirmationTokenResult>.Success(new(false, null, null, null));
 
         var confirmationToken = await GenerateEmailConfirmationTokenAsync(user.Id, ct);
 

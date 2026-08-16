@@ -34,7 +34,9 @@ namespace Saldoa.Application.Auth.ResendConfirmEmail
 
             var body = $"""
             <h1>Confirme seu e-mail</h1>
-
+            <p>
+                Seu Id é: {validateResult.Value.UserId}
+            </p>
             <p>
                 Seu token é: {confirmToken}
             </p>
