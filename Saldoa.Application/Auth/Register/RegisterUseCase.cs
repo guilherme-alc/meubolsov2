@@ -38,7 +38,9 @@ public class RegisterUseCase
 
         var body = $"""
             <h1>Confirme seu e-mail</h1>
-
+            <p>
+                Seu Id é: {result.Value!.UserId}
+            </p>
             <p>
                 Seu token é: {result.Value!.ConfirmationToken}
             </p>

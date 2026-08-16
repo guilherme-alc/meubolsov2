@@ -11,4 +11,5 @@ public interface IIdentityService
     Task<Result> ConfirmEmailAsync(string userId, string encodedToken, CancellationToken ct);
     Task<Result> UpdateLastConfirmationEmailSentAtAsync(string userId, CancellationToken ct);
     Task<Result<ConfirmationTokenResult>> PrepareEmailConfirmationResendAsync(string email, CancellationToken ct);
+    Task<Result<ResetPasswordTokenResult>> GenerateResetPasswordTokenAsync(string email, CancellationToken ct);
 }

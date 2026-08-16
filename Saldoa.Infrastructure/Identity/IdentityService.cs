@@ -191,4 +191,34 @@ public sealed class IdentityService : IIdentityService
                 Token: confirmationToken.Value)
         );
     }
+
+    public async Task<Result<ResetPasswordTokenResult>> GenerateResetPasswordTokenAsync(string email, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+
+        var normalizedEmail = _userManager.NormalizeEmail(email);
+        var user = await _userManager.FindByEmailAsync(normalizedEmail);
+
+        if (user is null)
+            return Result<ResetPasswordTokenResult>.Success(new(false, null, null, null));
+
+        if (user.LastPasswordResetEmailSentAt.HasValue &&
+            user.LastPasswordResetEmailSentAt.Value.AddMinutes(3) > DateTime.UtcNow)
+            return Result<ResetPasswordTokenResult>.Success(new(false, null, null, null));
+
+        var rawConfirmationToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+        var passwordResetToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawConfirmationToken));
+
+        if (string.IsNullOrWhiteSpace(passwordResetToken))
+            return Result<ResetPasswordTokenResult>.Failure(AuthErrors.Unexpected);
+
+        return Result<ResetPasswordTokenResult>.Success(new ResetPasswordTokenResult(
+            ShouldSendEmail: true,
+            Email: user.Email,
+            UserId: user.Id,
+            Token: passwordResetToken)
+        );
+    }
+    }
+    }
 }

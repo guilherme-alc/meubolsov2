@@ -9,6 +9,7 @@ using Saldoa.Application.Auth.Logout;
 using Saldoa.Application.Auth.Refresh;
 using Saldoa.Application.Auth.Register;
 using Saldoa.Application.Auth.ResendConfirmEmail;
+using Saldoa.Application.Auth.SendPasswordReset;
 using Saldoa.Application.Categories.Create;
 using Saldoa.Application.Categories.Delete;
 using Saldoa.Application.Categories.GetById;
@@ -82,6 +83,7 @@ public static class ServiceCollectionExtensions
         builder.Services.AddScoped<LogoutUseCase>();
         builder.Services.AddScoped<ConfirmEmailUseCase>();
         builder.Services.AddScoped<ResendConfirmEmailUseCase>();
+        builder.Services.AddScoped<SendPasswordResetTokenUseCase>();
 
         builder.Services.AddScoped<CreateCategoryUseCase>();
         builder.Services.AddScoped<UpdateCategoryUseCase>();
