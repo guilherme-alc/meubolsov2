@@ -37,5 +37,12 @@ public class ApplicationUserConfiguration :  IEntityTypeConfiguration<Applicatio
 
         builder.Property(u => u.LastConfirmationEmailSentAt)
             .HasColumnName("last_confirmation_email_sent_at");
+
+        builder.Property(u => u.LastPasswordResetEmailSentAt)
+            .HasColumnName("last_password_reset_email_sent_at");
+
+        builder.Property(u => u.LastPasswordResetAt)
+            .HasColumnName("last_password_reset_at");
+
     }
 }

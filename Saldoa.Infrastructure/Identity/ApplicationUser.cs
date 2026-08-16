@@ -11,5 +11,7 @@ namespace Saldoa.Infrastructure.Identity
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? LastLoginAt { get; set; }
         public DateTime? LastConfirmationEmailSentAt { get; set; }
+        public DateTime? LastPasswordResetEmailSentAt { get; set; }
+        public DateTime? LastPasswordResetAt { get; set; }
     }
 }
