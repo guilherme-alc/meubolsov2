@@ -1,3 +1,4 @@
+using Hangfire;
 using Saldoa.API.Middlewares;
 using Scalar.AspNetCore;
 
@@ -32,7 +33,7 @@ public static class WebApplicationExtensions
             });
         app.UseSecurityHeaders(policy);
         
-        // Scalar em dev
+        // Doc Api Scalar em dev
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi().AllowAnonymous();
@@ -47,6 +48,10 @@ public static class WebApplicationExtensions
                         auth.Token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
                     }).EnablePersistentAuthentication();
             }).AllowAnonymous();
+
+            // Dashboard Hangfire
+            app.MapHangfireDashboard("/hangfire")
+                .AllowAnonymous();
         }
 
         // Segurança
@@ -55,10 +60,10 @@ public static class WebApplicationExtensions
         app.UseRateLimiter();
 
         app.UseAuthorization();
-        
+
         // Endpoints
         app.MapEndpoints();
-        
+
         return app;
     }
 }

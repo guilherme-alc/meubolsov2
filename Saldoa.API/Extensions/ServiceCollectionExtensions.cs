@@ -1,4 +1,5 @@
-using FluentValidation;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
@@ -45,6 +46,14 @@ public static class ServiceCollectionExtensions
     public static WebApplicationBuilder AddInfrastructure(this WebApplicationBuilder builder)
     {
         builder.Services.AddInfrastructure(builder.Configuration);
+        builder.Services.AddHangfire(config =>
+        {
+            config
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UsePostgreSqlStorage(c => c.UseNpgsqlConnection(builder.Configuration.GetConnectionString("HangfireConnection")));
+        });
 
         return builder;
     }
@@ -52,27 +61,6 @@ public static class ServiceCollectionExtensions
     public static WebApplicationBuilder AddApplication(this WebApplicationBuilder builder)
     {
         builder.Services.AddApplication();
-
-        builder.Services.AddScoped<CreateCategoryUseCase>();
-        builder.Services.AddScoped<UpdateCategoryUseCase>();
-        builder.Services.AddScoped<GetCategoryByIdUseCase>();
-        builder.Services.AddScoped<DeleteCategoryUseCase>();
-        builder.Services.AddScoped<ListCategoriesUseCase>();
-
-        builder.Services.AddScoped<TransactionBudgetAnalyzer>();
-        builder.Services.AddScoped<CreateTransactionUseCase>();
-        builder.Services.AddScoped<GetTransactionByIdUseCase>();
-        builder.Services.AddScoped<UpdateTransactionUseCase>();
-        builder.Services.AddScoped<DeleteTransactionUseCase>();
-        builder.Services.AddScoped<ListTransactionsByPeriodUseCase>();
-        builder.Services.AddScoped<GetInstallmentsByGroupIdUseCase>();
-        
-        builder.Services.AddScoped<CreateCategoryBudgetUseCase>();
-        builder.Services.AddScoped<ListCategoryBudgetsUseCase>();
-        builder.Services.AddScoped<DeleteCategoryBudgetUseCase>();
-        builder.Services.AddScoped<GetCategoryBudgetByIdUseCase>();
-        builder.Services.AddScoped<UpdateCategoryBudgetUseCase>();
-        builder.Services.AddScoped<GetCategoryBudgetsByCategoryUseCase>();
     
         return builder;
     }
