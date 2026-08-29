@@ -3,32 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Saldoa.API.OpenApi;
-using Saldoa.Application.Auth.ConfirmEmail;
-using Saldoa.Application.Auth.Login;
-using Saldoa.Application.Auth.Logout;
-using Saldoa.Application.Auth.Refresh;
-using Saldoa.Application.Auth.Register;
-using Saldoa.Application.Auth.ResendConfirmEmail;
-using Saldoa.Application.Auth.ResetPassword;
-using Saldoa.Application.Auth.SendPasswordReset;
-using Saldoa.Application.Categories.Create;
-using Saldoa.Application.Categories.Delete;
-using Saldoa.Application.Categories.GetById;
-using Saldoa.Application.Categories.List;
-using Saldoa.Application.Categories.Update;
-using Saldoa.Application.CategoryBudgets.Create;
-using Saldoa.Application.CategoryBudgets.Delete;
-using Saldoa.Application.CategoryBudgets.GetCategoryBudgetByCategory;
-using Saldoa.Application.CategoryBudgets.GetCategoryBudgetById;
-using Saldoa.Application.CategoryBudgets.ListCategoryBudgets;
-using Saldoa.Application.CategoryBudgets.Update;
-using Saldoa.Application.Transactions.Common;
-using Saldoa.Application.Transactions.Create;
-using Saldoa.Application.Transactions.Delete;
-using Saldoa.Application.Transactions.GetById;
-using Saldoa.Application.Transactions.GetInstallmentsByGroupId;
-using Saldoa.Application.Transactions.ListByPeriod;
-using Saldoa.Application.Transactions.Update;
+using Saldoa.Application;
 using Saldoa.Infrastructure;
 using Saldoa.Infrastructure.Auth;
 using System.Text;
@@ -76,16 +51,7 @@ public static class ServiceCollectionExtensions
 
     public static WebApplicationBuilder AddApplication(this WebApplicationBuilder builder)
     {
-        builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
-
-        builder.Services.AddScoped<LoginUseCase>();
-        builder.Services.AddScoped<RegisterUseCase>();
-        builder.Services.AddScoped<RefreshUseCase>();
-        builder.Services.AddScoped<LogoutUseCase>();
-        builder.Services.AddScoped<ConfirmEmailUseCase>();
-        builder.Services.AddScoped<ResendConfirmEmailUseCase>();
-        builder.Services.AddScoped<SendPasswordResetTokenUseCase>();
-        builder.Services.AddScoped<ResetPasswordUseCase>();
+        builder.Services.AddApplication();
 
         builder.Services.AddScoped<CreateCategoryUseCase>();
         builder.Services.AddScoped<UpdateCategoryUseCase>();
@@ -142,10 +108,12 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddAuthenticatedUserFallbackPolicy(this IServiceCollection services)
     {
-        services.AddAuthorizationBuilder()
+        services
+            .AddAuthorizationBuilder()
             .SetFallbackPolicy(new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
-                .Build());
+                .Build()
+            );
 
         return services;
     }
