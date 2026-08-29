@@ -10,6 +10,7 @@ using Saldoa.Application.Email.Abstractions;
 using Saldoa.Application.Identity.Abstractions;
 using Saldoa.Application.Transactions.Abstractions;
 using Saldoa.Infrastructure.Auth;
+using Saldoa.Infrastructure.BackgroundJob;
 using Saldoa.Infrastructure.Email;
 using Saldoa.Infrastructure.Identity;
 using Saldoa.Infrastructure.Persistence;
@@ -45,12 +46,15 @@ namespace Saldoa.Infrastructure
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<ITransactionRepository, TransactionRepository>();
             services.AddScoped<ICategoryBudgetRepository, CategoryBudgetRepository>();
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
             services.AddScoped<IJwtProvider, JwtProvider>();
             services.AddScoped<IIdentityService, IdentityService>();
             services.AddScoped<IEmailService, SmtpEmailService>();
+
             services.AddScoped<IRefreshTokenGenerator, RefreshTokenGenerator>();
-            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
+            services.AddScoped<IBackgroundJobService, HangfireBackgroundJobService>();
 
             services.AddIdentityCore<ApplicationUser>(options =>
             {
