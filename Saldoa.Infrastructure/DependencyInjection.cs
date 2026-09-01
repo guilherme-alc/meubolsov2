@@ -56,6 +56,8 @@ namespace Saldoa.Infrastructure
 
             services.AddScoped<IBackgroundJobService, HangfireBackgroundJobService>();
 
+            services.AddDataProtection();
+
             services.AddIdentityCore<ApplicationUser>(options =>
             {
                 options.Password.RequiredLength = 8;
@@ -66,7 +68,6 @@ namespace Saldoa.Infrastructure
                 options.User.RequireUniqueEmail = true;
             })
             .AddEntityFrameworkStores<SaldoaDbContext>()
-            .AddSignInManager()
             .AddDefaultTokenProviders();
 
             return services;

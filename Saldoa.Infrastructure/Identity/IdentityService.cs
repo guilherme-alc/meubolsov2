@@ -12,14 +12,11 @@ namespace Saldoa.Infrastructure.Identity;
 public sealed class IdentityService : IIdentityService
 {
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly SignInManager<ApplicationUser> _signInManager;
 
     public IdentityService(
-        UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager)
+        UserManager<ApplicationUser> userManager)
     {
         _userManager = userManager;
-        _signInManager = signInManager;
     }
     
     public Task<bool> UserExistsAsync(string email, CancellationToken ct = default)
@@ -73,27 +70,34 @@ public sealed class IdentityService : IIdentityService
     public async Task<Result<string>> SignInAsync(string email, string password, CancellationToken ct = default)
     {
         var normalized = _userManager.NormalizeEmail(email);
+
         var user = await _userManager.Users
             .FirstOrDefaultAsync(u => u.NormalizedEmail == normalized, ct);
         
         if (user is null || !user.IsActive)
             return Result<string>.Failure(AuthErrors.InvalidCredentials);
 
-        ct.ThrowIfCancellationRequested();
-
-        var result = await _signInManager.CheckPasswordSignInAsync(
-            user,
-            password,
-            lockoutOnFailure: true);
-
-        if (result.IsLockedOut)
+        if (await _userManager.IsLockedOutAsync(user))
             return Result<string>.Failure(AuthErrors.Forbidden);
 
-        if (result.IsNotAllowed)
+        if (!await _userManager.IsEmailConfirmedAsync(user))
             return Result<string>.Failure(AuthErrors.EmailNotConfirmed);
 
-        if (!result.Succeeded)
+        ct.ThrowIfCancellationRequested();
+
+        var passwordValid = await _userManager.CheckPasswordAsync(user, password);
+
+        if (!passwordValid)
+        {
+            await _userManager.AccessFailedAsync(user);
+
+            if (await _userManager.IsLockedOutAsync(user))
+                return Result<string>.Failure(AuthErrors.Forbidden);
+
             return Result<string>.Failure(AuthErrors.InvalidCredentials);
+        }
+
+        await _userManager.ResetAccessFailedCountAsync(user);
 
         user.LastLoginAt = DateTime.UtcNow;
         
