@@ -485,3 +485,5 @@ $RECYCLE.BIN/
 
 # Local planning notes live in Notion, not in the repository.
 BACKLOG_ROADMAP.md
+
+.sonarqube/
