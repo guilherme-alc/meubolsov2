@@ -15,7 +15,7 @@ namespace Saldoa.Infrastructure.Persistence
 
         public DbSet<Category> Categories { get; set; } = null!;
         public DbSet<Transaction> Transactions { get; set; } = null!;
-        public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+        public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
         public DbSet<CategoryBudget> CategoryBudgets { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
