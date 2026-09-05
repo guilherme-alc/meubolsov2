@@ -1,7 +1,8 @@
 using Saldoa.Application.Auth.Common;
+using Saldoa.Application.Auth.ConfirmEmail;
+using Saldoa.Application.Common.Abstractions;
 using Saldoa.Application.Common.Results;
 using Saldoa.Application.Email;
-using Saldoa.Application.Email.Abstractions;
 using Saldoa.Application.Identity.Abstractions;
 
 namespace Saldoa.Application.Auth.Register;
@@ -9,13 +10,15 @@ namespace Saldoa.Application.Auth.Register;
 public class RegisterUseCase
 {
     private readonly IIdentityService _identityService;
-    private readonly IEmailService _emailService;
 
-    public RegisterUseCase(IIdentityService identityService, IEmailService emailService)
+    private readonly IBackgroundJobService _backgroundJobService;
+
+    public RegisterUseCase(IIdentityService identityService, IBackgroundJobService backgroundJobService)
     {
         _identityService = identityService;
-        _emailService = emailService;
+        _backgroundJobService = backgroundJobService;
     }
+
     public async Task<Result> ExecuteAsync(RegisterRequest request, CancellationToken ct)
     {
         if (await _identityService.UserExistsAsync(request.Email, ct))
@@ -48,9 +51,7 @@ public class RegisterUseCase
 
         EmailMessage emailMessage = new(result.Value.Email, "Bem-vindo ao Saldoa! - Confirme seu e-mail", body);
 
-        await _emailService.SendAsync(emailMessage, ct);
-
-        await _identityService.UpdateLastConfirmationEmailSentAtAsync(result.Value.UserId, ct);
+        _backgroundJobService.Enqueue<SendEmailConfirmationJob>(x => x.ExecuteAsync(emailMessage, result.Value.UserId, CancellationToken.None));
 
         return Result.Success();
     }
