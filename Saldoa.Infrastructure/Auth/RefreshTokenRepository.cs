@@ -31,4 +31,13 @@ public class RefreshTokenRepository(SaldoaDbContext dbContext) : IRefreshTokenRe
                 refreshToken.Revoke();
         }
     }
+
+    public Task CleanExpiredTokensAsync(CancellationToken ct)
+    {
+        var now = DateTime.UtcNow;
+
+        return dbContext.RefreshTokens
+            .Where(x => x.ExpiresAt <= now)
+            .ExecuteDeleteAsync(ct);
+    }
 }

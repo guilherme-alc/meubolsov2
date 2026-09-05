@@ -24,6 +24,7 @@ public class Program
         });
 
         builder.Services.AddHangfireServer();
+        builder.Services.AddHostedService<HangfireSchedulerWorker>();
 
         var host = builder.Build();
         host.Run();

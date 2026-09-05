@@ -62,6 +62,7 @@ namespace Saldoa.Application
             services.AddScoped<UpdateCategoryBudgetUseCase>();
             services.AddScoped<GetCategoryBudgetsByCategoryUseCase>();
             services.AddScoped<SendEmailConfirmationJob>();
+            services.AddScoped<CleanExpiredRefreshTokensJob>();
 
             return services;
         }
