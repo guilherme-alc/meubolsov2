@@ -5,9 +5,9 @@ using Saldoa.Application.Auth.ConfirmEmail;
 
 namespace Saldoa.API.Endpoints.Auth
 {
-    public static class ConfirmEmailEndpoint
+    internal static class ConfirmEmailEndpoint
     {
-        public static void Map(RouteGroupBuilder authGroup)
+        internal static void Map(RouteGroupBuilder authGroup)
         {
             authGroup.MapPost("confirm-email", 
                 async Task<IResult> (

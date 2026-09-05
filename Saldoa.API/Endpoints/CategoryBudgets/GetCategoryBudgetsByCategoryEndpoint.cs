@@ -6,9 +6,9 @@ using System.Security.Claims;
 
 namespace Saldoa.API.Endpoints.CategoryBudgets;
 
-public static class GetCategoryBudgetsByCategoryEndpoint
+internal static class GetCategoryBudgetsByCategoryEndpoint
 {
-    public static void Map(RouteGroupBuilder categoryBudgetsGroup)
+    internal static void Map(RouteGroupBuilder categoryBudgetsGroup)
     {
         categoryBudgetsGroup.MapGet("/by-category/{categoryId:long:min(1)}", 
             async Task<IResult> (

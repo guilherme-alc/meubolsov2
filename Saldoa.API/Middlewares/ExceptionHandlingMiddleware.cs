@@ -4,7 +4,7 @@ using Saldoa.Domain.Exceptions;
 
 namespace Saldoa.API.Middlewares;
 
-public class ExceptionHandlingMiddleware
+internal class ExceptionHandlingMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<ExceptionHandlingMiddleware> _logger;
@@ -89,6 +89,8 @@ public class ExceptionHandlingMiddleware
             Instance = context.Request.Path
         };
 
-        await context.Response.WriteAsJsonAsync(problem);
+        await context.Response.WriteAsJsonAsync(
+            problem,
+            cancellationToken: context.RequestAborted);
     }
 }

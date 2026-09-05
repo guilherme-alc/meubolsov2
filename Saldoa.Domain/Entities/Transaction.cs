@@ -30,7 +30,7 @@ namespace Saldoa.Domain.Entities
             InstallmentInfo = installmentInfo ?? throw new DomainException(nameof(installmentInfo));   
         }
 
-        public long Id { get; private set; }
+        public long Id { get; }
         public string Title { get; private set; } = null!;
         public string? Description { get; private set; }
         public TransactionType Type { get; private set; }

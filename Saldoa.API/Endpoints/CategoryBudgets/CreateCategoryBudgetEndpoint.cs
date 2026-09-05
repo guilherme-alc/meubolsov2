@@ -6,9 +6,9 @@ using Saldoa.Application.CategoryBudgets.Create;
 
 namespace Saldoa.API.Endpoints.CategoryBudgets;
 
-public static class CreateCategoryBudgetEndpoint
+internal static class CreateCategoryBudgetEndpoint
 {
-    public static void Map(RouteGroupBuilder categoryBudgetsGroup)
+    internal static void Map(RouteGroupBuilder categoryBudgetsGroup)
     {
         categoryBudgetsGroup.MapPost("/", 
             async Task<IResult> (

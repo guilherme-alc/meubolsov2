@@ -2,9 +2,9 @@ using Saldoa.Application.Auth.Logout;
 
 namespace Saldoa.API.Endpoints.Auth;
 
-public class LogoutEndpoint
+internal static class LogoutEndpoint
 {
-    public static void Map(RouteGroupBuilder authGroup)
+    internal static void Map(RouteGroupBuilder authGroup)
     {
         authGroup.MapPost("/logout", 
             async Task<IResult> (

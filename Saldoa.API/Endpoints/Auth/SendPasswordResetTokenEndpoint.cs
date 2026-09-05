@@ -5,9 +5,9 @@ using Saldoa.Application.Auth.SendPasswordReset;
 
 namespace Saldoa.API.Endpoints.Auth
 {
-    public static class SendPasswordResetTokenEndpoint
+    internal static class SendPasswordResetTokenEndpoint
     {
-        public static void Map(RouteGroupBuilder authGroup)
+        internal static void Map(RouteGroupBuilder authGroup)
         {
             authGroup.MapPost("/send-password-reset-token", 
                 async Task<IResult> (

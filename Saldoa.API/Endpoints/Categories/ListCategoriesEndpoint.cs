@@ -5,9 +5,9 @@ using Saldoa.Application.Categories.List;
 
 namespace Saldoa.API.Endpoints.Categories;
 
-public static class ListCategoriesEndpoint
+internal static class ListCategoriesEndpoint
 {
-    public static void Map(RouteGroupBuilder categoriesGroup)
+    internal static void Map(RouteGroupBuilder categoriesGroup)
     {
         categoriesGroup.MapGet("/", 
             async Task<IResult> (

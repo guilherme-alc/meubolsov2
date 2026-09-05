@@ -2,7 +2,7 @@ using Saldoa.API.Extensions;
 
 namespace Saldoa.API
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {

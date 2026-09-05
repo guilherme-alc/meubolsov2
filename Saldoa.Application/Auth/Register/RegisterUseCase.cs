@@ -45,7 +45,7 @@ public class RegisterUseCase
                 Seu Id é: {result.Value!.UserId}
             </p>
             <p>
-                Seu token é: {result.Value!.ConfirmationToken}
+                Seu token é: {result.Value.ConfirmationToken}
             </p>
             """;
 

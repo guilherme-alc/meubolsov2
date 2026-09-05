@@ -6,9 +6,9 @@ using System.Security.Claims;
 
 namespace Saldoa.API.Endpoints.Transactions;
 
-public static class ListTransactionsByPeriodEndpoint
+internal static class ListTransactionsByPeriodEndpoint
 {
-    public static void Map(RouteGroupBuilder transactionsGroup)
+    internal static void Map(RouteGroupBuilder transactionsGroup)
     {
         transactionsGroup.MapGet("/", 
             async Task<IResult> (

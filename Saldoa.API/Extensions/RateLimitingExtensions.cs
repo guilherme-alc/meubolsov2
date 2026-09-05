@@ -7,9 +7,9 @@ using System.Threading.RateLimiting;
 
 namespace Saldoa.API.Extensions;
 
-public static class RateLimitingExtensions
+internal static class RateLimitingExtensions
 {
-    public static WebApplicationBuilder AddApplicationRateLimiting(this WebApplicationBuilder builder)
+    internal static WebApplicationBuilder AddApplicationRateLimiting(this WebApplicationBuilder builder)
     {
         builder.Services.AddRateLimiter(options => 
         {

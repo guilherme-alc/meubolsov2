@@ -16,7 +16,7 @@ namespace Saldoa.Domain.Entities
             CreatedAt = DateTimeOffset.UtcNow;
         }
 
-        public long Id { get; private set; }
+        public long Id { get; }
         public string Name { get; private set; } = null!;
         public string NormalizedName { get; private set; } = null!;
         public string? Description { get; private set; }

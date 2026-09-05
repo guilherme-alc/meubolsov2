@@ -1,8 +1,8 @@
 namespace Saldoa.API.Endpoints.Transactions;
 
-public static class TransactionsEndpoints
+internal static class TransactionsEndpoints
 {
-    public static void MapTransactionEndpoints(this IEndpointRouteBuilder app)
+    internal static void MapTransactionEndpoints(this IEndpointRouteBuilder app)
     {
         var transactionsGroup = app.MapGroup("/transactions")
             .WithTags("Transactions");

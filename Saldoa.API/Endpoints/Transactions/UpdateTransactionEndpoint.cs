@@ -6,9 +6,9 @@ using System.Security.Claims;
 
 namespace Saldoa.API.Endpoints.Transactions;
 
-public static class UpdateTransactionEndpoint
+internal static class UpdateTransactionEndpoint
 {
-    public static void Map(RouteGroupBuilder transactionsGroup)
+    internal static void Map(RouteGroupBuilder transactionsGroup)
     {
         transactionsGroup.MapPut("/{id:long}", 
             async Task<IResult> (

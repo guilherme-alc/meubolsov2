@@ -16,8 +16,6 @@ public class ListCategoryBudgetsUseCase
     public async Task<Result<PagedResult<CategoryBudgetResponse>>> ExecuteAsync(string userId, ListCategoryBudgetsRequest request,
         CancellationToken ct)
     {
-        var activeFilter = request.Active ?? true;
-        
         var data = await _categoryBudgetRepository.ListAsync(request.PageNumber,
             request.PageSize,
             userId,

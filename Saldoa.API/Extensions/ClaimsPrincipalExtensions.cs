@@ -3,9 +3,9 @@ using System.Security.Claims;
 
 namespace Saldoa.API.Extensions;
 
-public static class ClaimsPrincipalExtensions
+internal static class ClaimsPrincipalExtensions
 {
-    public static string GetUserId(this ClaimsPrincipal user)
+    internal static string GetUserId(this ClaimsPrincipal user)
     {
         return user.FindFirstValue(ClaimTypes.NameIdentifier)
                ?? user.FindFirstValue(JwtRegisteredClaimNames.Sub)

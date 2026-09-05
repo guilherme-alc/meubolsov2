@@ -7,7 +7,7 @@ namespace Saldoa.Infrastructure.Persistence.Repositories;
 
 public class CategoryRepository(SaldoaDbContext dbContext) : ICategoryRepository
 {
-    public async Task AddAsync(Category category, CancellationToken ct = default)
+    public async Task AddAsync(Category category, CancellationToken ct)
     {
         await dbContext.Categories.AddAsync(category, ct);
     }
@@ -17,7 +17,7 @@ public class CategoryRepository(SaldoaDbContext dbContext) : ICategoryRepository
         dbContext.Categories.Remove(category);
     }
 
-    public async Task<Category?> GetByIdAsync(long id, string userId, CancellationToken ct = default)
+    public async Task<Category?> GetByIdAsync(long id, string userId, CancellationToken ct)
     {
         var category = await dbContext.Categories
             .AsNoTracking()
@@ -26,7 +26,7 @@ public class CategoryRepository(SaldoaDbContext dbContext) : ICategoryRepository
         return category;
     }
     
-    public async Task<Category?> GetByIdForUpdateAsync(long id, string userId, CancellationToken ct = default)
+    public async Task<Category?> GetByIdForUpdateAsync(long id, string userId, CancellationToken ct)
     {
         var category = await dbContext.Categories
             .FirstOrDefaultAsync(c => c.Id == id && c.UserId == userId, ct);
@@ -38,7 +38,7 @@ public class CategoryRepository(SaldoaDbContext dbContext) : ICategoryRepository
         int pageNumber, 
         int pageSize,
         string userId,
-        CancellationToken ct = default)
+        CancellationToken ct)
     {
         var query = dbContext
             .Categories
@@ -56,7 +56,7 @@ public class CategoryRepository(SaldoaDbContext dbContext) : ICategoryRepository
         return new PagedResult<Category>(data, total, pageNumber, pageSize);
     }
 
-    public Task<bool> ExistsAsync(string userId, string name, CancellationToken ct = default)
+    public Task<bool> ExistsAsync(string userId, string name, CancellationToken ct)
     {
         var nameNormalized = name.Trim().ToUpperInvariant();
         

@@ -37,8 +37,8 @@ public class ListTransactionsByPeriodUseCase
             endDate,
             request.Type,
             request.CategoryId,
-            request.PageNumber!, 
-            request.PageSize!, 
+            request.PageNumber, 
+            request.PageSize, 
             ct);
 
         var transactionsResponse = data.Items.Select(t =>

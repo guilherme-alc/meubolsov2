@@ -5,9 +5,9 @@ using System.Security.Claims;
 
 namespace Saldoa.API.Endpoints.CategoryBudgets;
 
-public static class DeleteCategoryBudgetEndpoint
+internal static class DeleteCategoryBudgetEndpoint
 {
-    public static void Map(RouteGroupBuilder categoryBudgetsGroup)
+    internal static void Map(RouteGroupBuilder categoryBudgetsGroup)
     {
         categoryBudgetsGroup.MapDelete("/{id:long:min(1)}", 
             async Task<IResult> (

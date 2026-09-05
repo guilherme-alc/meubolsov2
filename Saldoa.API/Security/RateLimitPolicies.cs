@@ -1,11 +1,11 @@
 ﻿namespace Saldoa.API.Security;
 
-public static class RateLimitPolicies
+internal static class RateLimitPolicies
 {
-    public const string Login = "auth-login";
-    public const string Register = "auth-register";
-    public const string PasswordResetRequest = "auth-password-reset-request";
-    public const string PasswordResetConfirm = "auth-password-reset-confirm";
-    public const string EmailConfirmation = "auth-email-confirmation";
-    public const string Refresh = "auth-refresh";
+    internal const string Login = "auth-login";
+    internal const string Register = "auth-register";
+    internal const string PasswordResetRequest = "auth-password-reset-request";
+    internal const string PasswordResetConfirm = "auth-password-reset-confirm";
+    internal const string EmailConfirmation = "auth-email-confirmation";
+    internal const string Refresh = "auth-refresh";
 }

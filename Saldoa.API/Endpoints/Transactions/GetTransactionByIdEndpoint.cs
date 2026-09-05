@@ -5,9 +5,9 @@ using System.Security.Claims;
 
 namespace Saldoa.API.Endpoints.Transactions;
 
-public static class GetTransactionByIdEndpoint
+internal static class GetTransactionByIdEndpoint
 {
-    public static void Map(RouteGroupBuilder transactionsGroup)
+    internal static void Map(RouteGroupBuilder transactionsGroup)
     {
         transactionsGroup.MapGet("/{id:long}", 
             async Task<IResult> (

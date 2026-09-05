@@ -5,9 +5,9 @@ using Saldoa.Application.Auth.Register;
 
 namespace Saldoa.API.Endpoints.Auth;
 
-public static class RegisterEndpoint
+internal static class RegisterEndpoint
 {
-    public static void Map(RouteGroupBuilder authGroup)
+    internal static void Map(RouteGroupBuilder authGroup)
     {
         authGroup.MapPost("/register",
             async Task<IResult> (

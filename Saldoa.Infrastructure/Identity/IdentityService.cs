@@ -19,13 +19,13 @@ public sealed class IdentityService : IIdentityService
         _userManager = userManager;
     }
     
-    public Task<bool> UserExistsAsync(string email, CancellationToken ct = default)
+    public Task<bool> UserExistsAsync(string email, CancellationToken ct)
     {
         var normalized = _userManager.NormalizeEmail(email);
         return _userManager.Users.AnyAsync(u => u.NormalizedEmail == normalized, ct);
     }
 
-    public async Task<Result<CreateUserResult>> CreateUserAsync(string email, string password, string firstName, string? lastName, CancellationToken ct = default)
+    public async Task<Result<CreateUserResult>> CreateUserAsync(string email, string password, string firstName, string? lastName, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
         var user = new ApplicationUser
@@ -42,18 +42,25 @@ public sealed class IdentityService : IIdentityService
         var result = await _userManager.CreateAsync(user, password);
 
         if (!result.Succeeded)
-            throw new Exception(string.Join(
-                ", ", result.Errors.Select(e => e.Description)));
+        {
+            if (HasError(result, "Duplicate"))
+                return Result<CreateUserResult>.Failure(AuthErrors.AlreadyExists);
+
+            if (HasError(result, "Password"))
+                return Result<CreateUserResult>.Failure(AuthErrors.InvalidPassword);
+
+            return Result<CreateUserResult>.Failure(AuthErrors.Invalid);
+        }
 
         var confirmationToken = await GenerateEmailConfirmationTokenAsync(user.Id, ct);
 
         if (!confirmationToken.IsSuccess || string.IsNullOrWhiteSpace(confirmationToken.Value))
             return Result<CreateUserResult>.Failure(AuthErrors.Unexpected);
 
-        return Result<CreateUserResult>.Success(new CreateUserResult(confirmationToken.Value!, email, user.Id));
+        return Result<CreateUserResult>.Success(new CreateUserResult(confirmationToken.Value, email, user.Id));
     }
 
-    private async Task<Result<string>> GenerateEmailConfirmationTokenAsync(string userId, CancellationToken ct = default)
+    private async Task<Result<string>> GenerateEmailConfirmationTokenAsync(string userId, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
 
@@ -67,7 +74,7 @@ public sealed class IdentityService : IIdentityService
         return Result<string>.Success(confirmationToken);
     }
 
-    public async Task<Result<string>> SignInAsync(string email, string password, CancellationToken ct = default)
+    public async Task<Result<string>> SignInAsync(string email, string password, CancellationToken ct)
     {
         var normalized = _userManager.NormalizeEmail(email);
 
@@ -105,12 +112,12 @@ public sealed class IdentityService : IIdentityService
         var updateLastLoginResult = await _userManager.UpdateAsync(user);
 
         if (!updateLastLoginResult.Succeeded)
-            throw new Exception(string.Join(", ", updateLastLoginResult.Errors.Select(e => e.Description)));
+            return Result<string>.Failure(AuthErrors.Unexpected);
 
         return Result<string>.Success(user.Id);
     }
     
-    public async Task<Result<string?>> GetEmailByUserIdAsync(string userId, CancellationToken ct = default)
+    public async Task<Result<string?>> GetEmailByUserIdAsync(string userId, CancellationToken ct)
     {
         var user = await _userManager.Users
             .SingleOrDefaultAsync(u => u.Id == userId, ct);
@@ -161,7 +168,7 @@ public sealed class IdentityService : IIdentityService
         var result = await _userManager.UpdateAsync(user);
 
         if (!result.Succeeded)
-            throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+            return Result.Failure(AuthErrors.Unexpected);
 
         return Result.Success();
     }
@@ -236,7 +243,7 @@ public sealed class IdentityService : IIdentityService
         var result = await _userManager.UpdateAsync(user);
 
         if (!result.Succeeded)
-            throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+            return Result.Failure(AuthErrors.Unexpected);
 
         return Result.Success();
     }
@@ -279,8 +286,11 @@ public sealed class IdentityService : IIdentityService
         var updateUserResult = await _userManager.UpdateAsync(user);
 
         if (!updateUserResult.Succeeded)
-            throw new Exception(string.Join(", ", updateUserResult.Errors.Select(e => e.Description)));
+            return Result.Failure(AuthErrors.Unexpected);
 
         return Result.Success();
     }
+
+    private static bool HasError(IdentityResult result, string codePrefix)
+        => result.Errors.Any(error => error.Code.StartsWith(codePrefix, StringComparison.OrdinalIgnoreCase));
 }

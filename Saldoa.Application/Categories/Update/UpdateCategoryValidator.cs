@@ -7,7 +7,7 @@ public sealed class UpdateCategoryValidator : AbstractValidator<UpdateCategoryRe
     public UpdateCategoryValidator()
     {
 
-        RuleFor(x => x.Name!)
+        RuleFor(x => x.Name)
             .Must(n => !string.IsNullOrWhiteSpace(n))
             .WithMessage("O nome da categoria precisa ser fornecido")
             .MaximumLength(100)

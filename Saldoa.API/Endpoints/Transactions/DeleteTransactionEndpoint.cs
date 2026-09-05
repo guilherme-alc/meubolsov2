@@ -5,9 +5,9 @@ using System.Security.Claims;
 
 namespace Saldoa.API.Endpoints.Transactions;
 
-public static class DeleteTransactionEndpoint
+internal static class DeleteTransactionEndpoint
 {
-    public static void Map(RouteGroupBuilder transactionsGroup)
+    internal static void Map(RouteGroupBuilder transactionsGroup)
     {
         transactionsGroup.MapDelete("/{id:long}", 
             async Task<IResult> (

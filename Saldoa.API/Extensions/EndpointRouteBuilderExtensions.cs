@@ -5,12 +5,12 @@ using Saldoa.API.Endpoints.Transactions;
 
 namespace Saldoa.API.Extensions;
 
-public static class EndpointRouteBuilderExtensions
+internal static class EndpointRouteBuilderExtensions
 {
     /// <summary>
     /// Organiza e configura endpoints da API
     /// </summary>
-    public static void MapEndpoints(this IEndpointRouteBuilder endpoints)
+    internal static void MapEndpoints(this IEndpointRouteBuilder endpoints)
     {
         var api = endpoints.MapGroup("/api");
         var v1 = api.MapGroup("/v1");

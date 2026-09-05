@@ -6,9 +6,9 @@ using System.Security.Claims;
 
 namespace Saldoa.API.Endpoints.Transactions;
 
-public static class CreateTransactionEndpoints
+internal static class CreateTransactionEndpoints
 {
-    public static void Map(RouteGroupBuilder transactionsGroup)
+    internal static void Map(RouteGroupBuilder transactionsGroup)
     {
         transactionsGroup.MapPost("/", 
             async Task<IResult> (
@@ -51,7 +51,7 @@ public static class CreateTransactionEndpoints
                 }
 
                 var response = result.Value!;
-                var responseItem = response!.Transactions.FirstOrDefault();
+                var responseItem = response.Transactions.FirstOrDefault();
 
                 return TypedResults.Created($"/transactions/{responseItem!.Id}", response);
             }

@@ -4,9 +4,9 @@ using Saldoa.Application.Auth.Refresh;
 
 namespace Saldoa.API.Endpoints.Auth;
 
-public static class RefreshEndpoint
+internal static class RefreshEndpoint
 {
-    public static void Map(RouteGroupBuilder authGroup)
+    internal static void Map(RouteGroupBuilder authGroup)
     {
         authGroup.MapPost("/refresh", 
             async Task<IResult> (

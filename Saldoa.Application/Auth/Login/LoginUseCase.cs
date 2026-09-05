@@ -36,6 +36,10 @@ public class LoginUseCase
 
         if (!result.IsSuccess)
         {
+            var error = result.Error ?? AuthErrors.InvalidAccess;
+            if (error.Type == ErrorType.Unexpected)
+                return Result<AuthResult>.Failure(error);
+
             return Result<AuthResult>.Failure(AuthErrors.InvalidAccess);
         }
 

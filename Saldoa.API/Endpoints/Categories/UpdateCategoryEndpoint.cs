@@ -6,9 +6,9 @@ using System.Security.Claims;
 
 namespace Saldoa.API.Endpoints.Categories;
 
-public static class UpdateCategoryEndpoint
+internal static class UpdateCategoryEndpoint
 {
-    public static void Map(RouteGroupBuilder categoriesGroup)
+    internal static void Map(RouteGroupBuilder categoriesGroup)
     {
         categoriesGroup.MapPut("/{id:long}", 
             async Task<IResult> (

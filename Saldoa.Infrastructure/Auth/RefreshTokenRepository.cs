@@ -7,13 +7,13 @@ namespace Saldoa.Infrastructure.Auth;
 
 public class RefreshTokenRepository(SaldoaDbContext dbContext) : IRefreshTokenRepository
 {
-    public Task AddAsync(RefreshToken refreshToken, CancellationToken ct = default)
+    public Task AddAsync(RefreshToken refreshToken, CancellationToken ct)
         => dbContext.RefreshTokens.AddAsync(refreshToken, ct).AsTask();
 
-    public Task<RefreshToken?> GetByHashAsync(string tokenHash, CancellationToken ct = default)
+    public Task<RefreshToken?> GetByHashAsync(string tokenHash, CancellationToken ct)
         => dbContext.RefreshTokens.SingleOrDefaultAsync(x => x.TokenHash == tokenHash, ct);
 
-    public async Task RevokeTokenFamilyAsync(string tokenHash, CancellationToken ct = default)
+    public async Task RevokeTokenFamilyAsync(string tokenHash, CancellationToken ct)
     {
         var nextTokenHash = tokenHash;
         var visitedTokenHashes = new HashSet<string>(StringComparer.Ordinal);

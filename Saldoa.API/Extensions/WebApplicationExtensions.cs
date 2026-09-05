@@ -4,13 +4,13 @@ using Scalar.AspNetCore;
 
 namespace Saldoa.API.Extensions;
 
-public static class WebApplicationExtensions
+internal static class WebApplicationExtensions
 {
     /// <summary>
     /// Configura o pipeline HTTP da API, centralizando middlewares,
     /// segurança, documentação e mapeamento de endpoints.
     /// </summary>
-    public static WebApplication UseApi(this WebApplication app)
+    internal static WebApplication UseApi(this WebApplication app)
     {
         // Tratamento global de exceções
         app.UseMiddleware<ExceptionHandlingMiddleware>();

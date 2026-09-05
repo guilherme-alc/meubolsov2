@@ -10,12 +10,12 @@ namespace Saldoa.Infrastructure.Persistence.Repositories;
 
 public class TransactionRepository(SaldoaDbContext dbContext) : ITransactionRepository
 {
-    public async Task AddAsync(Transaction transaction, CancellationToken ct = default)
+    public async Task AddAsync(Transaction transaction, CancellationToken ct)
     {
         await dbContext.Transactions.AddAsync(transaction, ct);
     }
 
-    public async Task AddRangeAsync(IEnumerable<Transaction> transactions, CancellationToken ct = default)
+    public async Task AddRangeAsync(IEnumerable<Transaction> transactions, CancellationToken ct)
     {
         await dbContext.Transactions.AddRangeAsync(transactions, ct);
     }
@@ -25,7 +25,7 @@ public class TransactionRepository(SaldoaDbContext dbContext) : ITransactionRepo
         dbContext.Transactions.Remove(transaction);
     }
 
-    public async Task DeleteByInstallmentGroupId(Guid installmentGroupId, CancellationToken ct = default)
+    public async Task DeleteByInstallmentGroupId(Guid installmentGroupId, CancellationToken ct)
     {
         var transaction = await dbContext.Transactions
             .Where(t => t.InstallmentInfo.InstallmentGroupId == installmentGroupId)
@@ -34,14 +34,14 @@ public class TransactionRepository(SaldoaDbContext dbContext) : ITransactionRepo
         dbContext.RemoveRange(transaction);
     }
 
-    public async Task<Transaction?> GetByIdAsync(long id, string userId, CancellationToken ct = default)
+    public async Task<Transaction?> GetByIdAsync(long id, string userId, CancellationToken ct)
     {
         return await dbContext.Transactions
             .AsNoTracking()
             .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId, ct);
     }
 
-    public async Task<Transaction?> GetByIdForUpdateAsync(long id, string userId, CancellationToken ct = default)
+    public async Task<Transaction?> GetByIdForUpdateAsync(long id, string userId, CancellationToken ct)
     {
         return await dbContext.Transactions
             .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId, ct);
@@ -63,7 +63,7 @@ public class TransactionRepository(SaldoaDbContext dbContext) : ITransactionRepo
         long? categoryId,
         int pageNumber,
         int pageSize,
-        CancellationToken ct = default)
+        CancellationToken ct)
     {
         var query = dbContext
             .Transactions

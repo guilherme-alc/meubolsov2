@@ -6,9 +6,9 @@ using Saldoa.Application.Auth.ResetPassword;
 
 namespace Saldoa.API.Endpoints.Auth
 {
-    public static class ResetPasswordEndpoint
+    internal static class ResetPasswordEndpoint
     {
-        public static void Map(RouteGroupBuilder authGroup)
+        internal static void Map(RouteGroupBuilder authGroup)
         {
             authGroup.MapPost("/reset-password",
                 async Task<IResult> (

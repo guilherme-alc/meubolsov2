@@ -6,7 +6,7 @@ public class UpdateTransactionValidator : AbstractValidator<UpdateTransactionReq
 {
     public UpdateTransactionValidator()
     {
-        RuleFor(x => x.Title!)
+        RuleFor(x => x.Title)
             .Must(n => !string.IsNullOrWhiteSpace(n))
             .WithMessage("O título da transação precisa ser fornecido")
             .MaximumLength(100)
@@ -16,11 +16,11 @@ public class UpdateTransactionValidator : AbstractValidator<UpdateTransactionReq
             .MaximumLength(255)
             .WithMessage("A descrição não pode ultrapassar 255 caracteres");
 
-        RuleFor(x => x.Amount!)
+        RuleFor(x => x.Amount)
             .GreaterThan(0)
             .WithMessage("O valor da transação deve ser maior que 0");
 
-        RuleFor(x => x.CategoryId!)
+        RuleFor(x => x.CategoryId)
             .GreaterThan(0)
             .WithMessage("O id da categoria é obrigatório");
 

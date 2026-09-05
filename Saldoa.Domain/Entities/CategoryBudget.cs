@@ -17,7 +17,7 @@ namespace Saldoa.Domain.Entities
             UserId = userId;
             CreatedAt = DateTimeOffset.UtcNow;
         }
-        public long Id { get; private set; }
+        public long Id { get; }
         public long CategoryId { get; private set; }
         public string UserId { get; private set; } = null!;
         public DateOnly PeriodStart { get; private set; }

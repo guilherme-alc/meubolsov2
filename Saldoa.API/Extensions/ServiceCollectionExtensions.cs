@@ -11,9 +11,9 @@ using System.Text;
 
 namespace Saldoa.API.Extensions;
 
-public static class ServiceCollectionExtensions
+internal static class ServiceCollectionExtensions
 {
-    public static WebApplicationBuilder AddOpenApi(this WebApplicationBuilder builder)
+    internal static WebApplicationBuilder AddOpenApi(this WebApplicationBuilder builder)
     {
         builder.Services.AddOpenApi(options =>
         {
@@ -31,8 +31,8 @@ public static class ServiceCollectionExtensions
 
         return builder;
     }
-    
-    public static WebApplicationBuilder AddAuth(this WebApplicationBuilder builder)
+
+    internal static WebApplicationBuilder AddAuth(this WebApplicationBuilder builder)
     {
         builder.Services.Configure<JwtOptions>(
             builder.Configuration.GetSection(JwtOptions.SectionName));
@@ -43,7 +43,7 @@ public static class ServiceCollectionExtensions
         return builder;
     }
 
-    public static WebApplicationBuilder AddInfrastructure(this WebApplicationBuilder builder)
+    internal static WebApplicationBuilder AddInfrastructure(this WebApplicationBuilder builder)
     {
         builder.Services.AddInfrastructure(builder.Configuration);
         builder.Services.AddHangfire(config =>
@@ -58,16 +58,16 @@ public static class ServiceCollectionExtensions
         return builder;
     }
 
-    public static WebApplicationBuilder AddApplication(this WebApplicationBuilder builder)
+    internal static WebApplicationBuilder AddApplication(this WebApplicationBuilder builder)
     {
         builder.Services.AddApplication();
     
         return builder;
     }
 
-    private static IServiceCollection AddJwtAuthentication(
+    private static void AddJwtAuthentication(
         this IServiceCollection services,
-        IConfiguration configuration)
+        ConfigurationManager configuration)
     {
         services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -90,11 +90,9 @@ public static class ServiceCollectionExtensions
                     ClockSkew = TimeSpan.Zero
                 };
             });
-
-        return services;
     }
 
-    private static IServiceCollection AddAuthenticatedUserFallbackPolicy(this IServiceCollection services)
+    private static void AddAuthenticatedUserFallbackPolicy(this IServiceCollection services)
     {
         services
             .AddAuthorizationBuilder()
@@ -102,7 +100,5 @@ public static class ServiceCollectionExtensions
                 .RequireAuthenticatedUser()
                 .Build()
             );
-
-        return services;
     }
 }

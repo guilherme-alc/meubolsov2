@@ -7,7 +7,7 @@ internal static class AuthRequestSecurity
     private const string CrossSite = "cross-site";
     private const string TrustedOriginsSection = "Auth:TrustedOrigins";
 
-    public static bool IsTrustedRefreshRequest(HttpRequest request, IConfiguration configuration)
+    internal static bool IsTrustedRefreshRequest(HttpRequest request, IConfiguration configuration)
     {
         var secFetchSite = request.Headers[SecFetchSiteHeaderName].ToString();
         if (secFetchSite.Equals(CrossSite, StringComparison.OrdinalIgnoreCase))
@@ -32,7 +32,7 @@ internal static class AuthRequestSecurity
             HasSameOrigin(originUri, trustedUri));
     }
 
-    public static IResult InvalidOriginProblem()
+    internal static IResult InvalidOriginProblem()
         => TypedResults.Problem(
             title: "Auth.InvalidOrigin",
             detail: "Origem da requisição não permitida.",
